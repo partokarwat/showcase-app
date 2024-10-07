@@ -24,11 +24,15 @@ This project includes two screens that cover the following key functionalities:
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
 * dependency injection for managing component dependencies with **Hilt**
 * a full ui in *Jetpack compose*
+* how to store fetched data in a database with **Room**
 
 ## The implemented features are
 
 * Displaying a list of crypto coins
 * Fetching data from the internet
+* Store fetched data in a database for offline app use
+* Pull to refresh the list data
+* Switch coins in list based on their performance
 * Implementing navigation between screens
 * Using and understanding the MVVM architecture
 * Organizing files in a clear and efficient manner
