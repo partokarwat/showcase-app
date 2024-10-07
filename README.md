@@ -17,7 +17,7 @@ This project includes two screens that cover the following key functionalities:
 
 ## This project shows
 
-* MVVM Architecture
+* MVI Architecture
 * a type-based folders structure on the top level with **data, di, ui**
 * a feature-based folder structure on the sub-package level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
@@ -34,7 +34,7 @@ This project includes two screens that cover the following key functionalities:
 * Pull to refresh the list data
 * Switch coins in list based on their performance
 * Implementing navigation between screens
-* Using and understanding the MVVM architecture
+* Using and understanding the MVI architecture
 * Organizing files in a clear and efficient manner
 * Employing the right libraries for asynchronous communication
 * Writing unit tests for robust code
