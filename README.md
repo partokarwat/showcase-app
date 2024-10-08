@@ -23,7 +23,7 @@ This project includes two screens that cover the following key functionalities:
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
 * dependency injection for managing component dependencies with **Hilt**
-* a full ui in **Jetpack compose**
+* a full UI in **Jetpack compose**
 * the storage of fetched data in a database with **Room** and in the **DataStore**
 
 ## The implemented features are
