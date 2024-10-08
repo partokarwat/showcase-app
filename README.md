@@ -19,11 +19,11 @@ This project includes two screens that cover the following key functionalities:
 
 * Clean Code Architecture with **Compose UI, ViewModel, UseCase, Repository, Datasource**
 * MVI Architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
-* a well-organized folders structure with **data, di, ui** on the top level
+* a well-organized folders structure with **data, usecases, di, ui** on the top level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
 * dependency injection for managing component dependencies with **Hilt**
-* a full ui in *Jetpack compose*
+* a full ui in **Jetpack compose**
 * how to store fetched data in a database with **Room**
 
 ## The implemented features are
