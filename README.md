@@ -17,8 +17,8 @@ This project includes two screens that cover the following key functionalities:
 
 ## This project shows
 
-* MVI Architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
 * Clean Code Architecture with **Compose UI, ViewModel, UseCase, Repository, Datasource**
+* MVI Architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
 * a well-organized folders structure with **data, di, ui** on the top level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
