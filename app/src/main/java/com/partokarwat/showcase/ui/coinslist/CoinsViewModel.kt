@@ -46,25 +46,25 @@ class CoinsViewModel
 
         private fun createLoadedScreen() {
             viewModelScope.launch {
-                try {
-                    if (_state.value !is State.Loaded) {
+                if (_state.value is State.Loading) {
+                    try {
                         withContext(Dispatchers.Default) {
                             coinsUseCase.refreshCoins()
                         }
+                    } catch (e: Exception) {
+                        Log.d(CoinsViewModel::class.simpleName, e.toString())
+                        _event.emit(Event.ShowTechnicalError(R.string.loading_data_from_network_error_text))
                     }
-                } catch (e: Exception) {
-                    Log.d(CoinsViewModel::class.simpleName, e.toString())
-                    _event.emit(Event.ShowTechnicalError(R.string.loading_data_from_network_error_text))
-                }
-                try {
-                    showCoinsFromDatabase(
-                        coinRepository.getTop100GainersCoins(),
-                        isRefreshing = false,
-                        isTopGainers = true,
-                    )
-                } catch (e: Exception) {
-                    Log.d(CoinsViewModel::class.simpleName, e.toString())
-                    _event.emit(Event.ShowTechnicalError(R.string.loading_data_from_database_error_text))
+                    try {
+                        showCoinsFromDatabase(
+                            coinRepository.getTop100GainersCoins(),
+                            isRefreshing = false,
+                            isTopGainers = true,
+                        )
+                    } catch (e: Exception) {
+                        Log.d(CoinsViewModel::class.simpleName, e.toString())
+                        _event.emit(Event.ShowTechnicalError(R.string.loading_data_from_database_error_text))
+                    }
                 }
             }
         }
@@ -95,9 +95,9 @@ class CoinsViewModel
                     withContext(Dispatchers.Default) {
                         coinsUseCase.refreshCoins()
                     }
-                    val assets =
-                        if (state.isTopGainers) coinRepository.getTop100GainersCoins() else coinRepository.getTop100LoserCoins()
-                    showCoinsFromDatabase(assets, false, state.isTopGainers)
+                    _state.emit(
+                        state.copy(isRefreshing = false),
+                    )
                 } catch (e: Exception) {
                     Log.d(CoinsViewModel::class.simpleName, e.toString())
                     _event.emit(Event.ShowTechnicalError(R.string.pull_to_refresh_error_text))
