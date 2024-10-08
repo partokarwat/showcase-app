@@ -10,7 +10,7 @@ import com.partokarwat.showcase.ui.UniDirectionalViewModelContract
 import com.partokarwat.showcase.ui.coinslist.CoinsViewModelContract.Event
 import com.partokarwat.showcase.ui.coinslist.CoinsViewModelContract.Intent
 import com.partokarwat.showcase.ui.coinslist.CoinsViewModelContract.State
-import com.partokarwat.showcase.usecases.CoinsUseCase
+import com.partokarwat.showcase.usecases.FetchAllCoinsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class CoinsViewModel
     @Inject
     constructor(
-        private val coinsUseCase: CoinsUseCase,
+        private val fetchAllCoinsUseCase: FetchAllCoinsUseCase,
         private val coinRepository: CoinRepository,
     ) : ViewModel(),
         CoinsViewModelContract {
@@ -49,7 +49,7 @@ class CoinsViewModel
                 if (_state.value is State.Loading) {
                     try {
                         withContext(Dispatchers.Default) {
-                            coinsUseCase.refreshCoins()
+                            fetchAllCoinsUseCase()
                         }
                     } catch (e: Exception) {
                         Log.d(CoinsViewModel::class.simpleName, e.toString())
@@ -93,7 +93,7 @@ class CoinsViewModel
                         state.copy(isRefreshing = true),
                     )
                     withContext(Dispatchers.Default) {
-                        coinsUseCase.refreshCoins()
+                        fetchAllCoinsUseCase()
                     }
                     _state.emit(
                         state.copy(isRefreshing = false),

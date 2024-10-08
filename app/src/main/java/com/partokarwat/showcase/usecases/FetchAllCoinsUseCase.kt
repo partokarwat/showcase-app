@@ -6,12 +6,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CoinsUseCase
+class FetchAllCoinsUseCase
     @Inject
     constructor(
         private val coinRepository: CoinRepository,
     ) {
-        suspend fun refreshCoins() {
+        suspend operator fun invoke() {
             val cryptoCoroutinesApiResponse = coinRepository.getAssetsFromCoinCapApi()
             val timestampOfApiCall = cryptoCoroutinesApiResponse.timestamp
             coinRepository.setLastDataUpdateTimestamp(timestampOfApiCall)
