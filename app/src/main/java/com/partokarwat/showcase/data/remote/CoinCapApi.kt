@@ -10,7 +10,7 @@ interface CoinCapApi {
         @Query("limit") limit: Int = 2000,
     ): AssetResponse
 
-    @GET("assets/{id}/history")
+    @GET("assets/{id}/history?interval=d1")
     suspend fun getCoinHistory(
         @Path("id") id: String,
     ): CoinHistoryResponse
