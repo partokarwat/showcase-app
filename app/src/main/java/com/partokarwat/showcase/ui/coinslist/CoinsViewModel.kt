@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
-import com.partokarwat.showcase.data.repository.CoinRepository
+import com.partokarwat.showcase.data.repository.CoinListRepository
 import com.partokarwat.showcase.ui.UniDirectionalViewModelContract
 import com.partokarwat.showcase.ui.coinslist.CoinsViewModelContract.Event
 import com.partokarwat.showcase.ui.coinslist.CoinsViewModelContract.Intent
@@ -27,7 +27,7 @@ class CoinsViewModel
     @Inject
     constructor(
         private val fetchAllCoinsUseCase: FetchAllCoinsUseCase,
-        private val coinRepository: CoinRepository,
+        private val coinListRepository: CoinListRepository,
     ) : ViewModel(),
         CoinsViewModelContract {
         private val _state = MutableStateFlow<State>(State.Loading(false))
@@ -57,7 +57,7 @@ class CoinsViewModel
                     }
                     try {
                         showCoinsFromDatabase(
-                            coinRepository.getTop100GainersCoins(),
+                            coinListRepository.getTop100GainersCoins(),
                             isRefreshing = false,
                             isTopGainers = true,
                         )
@@ -74,7 +74,7 @@ class CoinsViewModel
             isRefreshing: Boolean,
             isTopGainers: Boolean,
         ) {
-            val timeStamp = coinRepository.getLastDataUpdateTimestamp()
+            val timeStamp = coinListRepository.getLastDataUpdateTimestamp()
             _state.emit(
                 State.Loaded(
                     items = assets,
@@ -115,7 +115,7 @@ class CoinsViewModel
                 try {
                     _state.emit(State.Loading(false))
                     val assets =
-                        if (!state.isTopGainers) coinRepository.getTop100GainersCoins() else coinRepository.getTop100LoserCoins()
+                        if (!state.isTopGainers) coinListRepository.getTop100GainersCoins() else coinListRepository.getTop100LoserCoins()
                     showCoinsFromDatabase(assets, state.isRefreshing, !state.isTopGainers)
                 } catch (e: Exception) {
                     Log.d(CoinsViewModel::class.simpleName, e.toString())

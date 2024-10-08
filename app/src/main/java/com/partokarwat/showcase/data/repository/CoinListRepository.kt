@@ -16,7 +16,7 @@ import javax.inject.Singleton
 val TIMESTAMP = longPreferencesKey("timestamp")
 
 @Singleton
-class CoinRepository
+class CoinListRepository
     @Inject
     constructor(
         private val coinDao: CoinDao,
@@ -26,8 +26,6 @@ class CoinRepository
         fun getTop100GainersCoins(): Flow<List<Coin>> = coinDao.getTop100GainersCoins()
 
         fun getTop100LoserCoins(): Flow<List<Coin>> = coinDao.getTop100LoserCoins()
-
-        fun getCoinById(id: String): Flow<Coin> = coinDao.getCoinById(id)
 
         fun deleteAllCoins() {
             coinDao.deleteAllCoins()
