@@ -17,8 +17,8 @@ This project includes two screens that cover the following key functionalities:
 
 ## This project shows
 
-* Clean Code Architecture with **Compose UI, ViewModel, UseCase, Repository, Datasource**
-* MVI Architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
+* Clean Code architecture with **Compose UI, ViewModel, UseCase, Repository, Datasource**
+* MVI architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
 * a well-organized folders structure with **data, usecases, di, ui** on the top level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
@@ -35,7 +35,7 @@ This project includes two screens that cover the following key functionalities:
 * Pull to refresh the list data with compose animation
 * Switch coins in list based on their performance
 * Implementing navigation between screens
-* Using and understanding the MVI architecture
+* Using and understanding the MVI and Clean Code architecture
 * Organizing files in a clear and efficient manner
 * Employing the right libraries for asynchronous communication
 * Writing unit tests for robust code
