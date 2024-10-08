@@ -17,7 +17,7 @@ This project includes two screens that cover the following key functionalities:
 
 ## This project shows
 
-* MVI Architecture
+* MVI Architecture, Clean Architecture
 * a well-organized folders structure with **data, di, ui** on the top level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
 * unit tests to validate the functionality of critical components like **ViewModel, UseCase, Repository**
@@ -30,7 +30,8 @@ This project includes two screens that cover the following key functionalities:
 * Displaying a list of crypto coins
 * Fetching data from the internet
 * Store fetched data in a database for offline app use
-* Pull to refresh the list data
+* Show skeleton loader when data is loaded
+* Pull to refresh the list data with compose animation
 * Switch coins in list based on their performance
 * Implementing navigation between screens
 * Using and understanding the MVI architecture
