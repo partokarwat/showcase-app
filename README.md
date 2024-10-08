@@ -21,7 +21,7 @@ This project includes two screens that cover the following key functionalities:
 
 ## This project shows
 
-* Clean Code architecture with **Compose UI, ViewModel, UseCase, Repository, Datasource**
+* Clean Code architecture with presentation layer of **Compose UI** and **ViewModel**, domain layer of **UseCases** and data layer of **Repository** and **Datasource**
 * MVI architecture with **UniDirectionalViewModelContract** between UI and ViewModel 
 * a well-organized folders structure with **data, usecases, di, ui** on the top level
 * asynchronous communication with **e.g., Kotlin Coroutines, Flows, Retrofit**
