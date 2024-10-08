@@ -66,13 +66,14 @@ import java.util.Date
 @Composable
 fun CoinsScreen(
     activity: Activity,
+    onCoinClick: (Coin) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: CoinsViewModel = hiltViewModel(),
 ) {
     val (state, intents, events) = use(viewModel = viewModel)
 
     Initializer(activity, intents, events)
-    ScreenContent(state, intents)
+    ScreenContent(state, intents, onCoinClick)
 }
 
 @Composable
@@ -113,6 +114,7 @@ private suspend fun collectEvents(
 fun ScreenContent(
     state: State,
     intents: (Intent) -> Unit,
+    onCoinClick: (Coin) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -138,6 +140,7 @@ fun ScreenContent(
                         newState.isRefreshing,
                         newState,
                         intents,
+                        onCoinClick,
                     )
             }
         }
@@ -169,6 +172,7 @@ fun LoadedContent(
     isRefreshing: Boolean,
     state: State.Loaded,
     intents: (Intent) -> Unit,
+    onCoinClick: (Coin) -> Unit = {},
 ) {
     val listState = state.items.collectAsState(emptyList()).value
 
@@ -192,7 +196,7 @@ fun LoadedContent(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            CoinsScreen(state, intents)
+            CoinsScreen(state, intents, onCoinClick)
         }
 
         PullRefreshIndicator(
@@ -210,6 +214,7 @@ fun LoadedContent(
 private fun CoinsScreen(
     state: State.Loaded,
     intents: (Intent) -> Unit,
+    onCoinClick: (Coin) -> Unit = {},
 ) {
     val listState = state.items.collectAsState(emptyList()).value
     val timeStampState = state.lastListUpdateTimestamp.collectAsState(0L).value
@@ -234,7 +239,7 @@ private fun CoinsScreen(
                 modifier = Modifier.weight(1f),
             ) {
                 items(listState.size) { itemIndex ->
-                    CoinListItem(listState[itemIndex])
+                    CoinListItem(listState[itemIndex], onCoinClick)
                 }
             }
         }

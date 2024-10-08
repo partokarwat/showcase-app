@@ -1,6 +1,7 @@
 package com.partokarwat.showcase.ui.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +24,15 @@ import com.valentinilk.shimmer.shimmer
 import java.util.Locale
 
 @Composable
-fun CoinListItem(item: Coin) {
+fun CoinListItem(
+    item: Coin,
+    onCoinClick: (Coin) -> Unit = {},
+) {
     Box(
         Modifier
             .padding(horizontal = Dimensions.spacingNormal)
-            .padding(top = Dimensions.spacingNormal),
+            .padding(top = Dimensions.spacingNormal)
+            .clickable { onCoinClick(item) },
     ) {
         Column {
             Row {
