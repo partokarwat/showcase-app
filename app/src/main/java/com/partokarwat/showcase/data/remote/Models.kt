@@ -19,7 +19,7 @@ data class AssetResponse(
 
 @Serializable
 data class HistoryValue(
-    val priceUsd: String,
+    var priceUsd: String,
     val time: Long,
     val date: String,
 )
