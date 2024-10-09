@@ -14,7 +14,7 @@ class GetCoinHistoryUseCase
         private val conversionRateRepository: ConversionRateRepository,
     ) {
         suspend operator fun invoke(coinId: String): List<HistoryValue> {
-            val historyValues = coinDetailsRepository.getCoinHistory(coinId).takeLast(31)
+            val historyValues = coinDetailsRepository.getCoinHistory(coinId)
             val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
             historyValues.onEach {
                 it.priceUsd =

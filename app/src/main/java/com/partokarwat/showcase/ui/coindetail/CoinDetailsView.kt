@@ -109,10 +109,16 @@ fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
         val canvasHeight = size.height
         val horizontalStep = canvasWidth / coinHistory.size
         val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toFloat()
+        val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toFloat()
+        val maximumOffset = maxValue - minValue
         val path = Path()
-        path.moveTo(0f, coinHistory.first().priceUsd.toFloat() * canvasHeight / maxValue)
+        val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toFloat()) / maximumOffset
+        val yFirstPoint = yFirstPointOffset * canvasHeight
+        path.moveTo(0f, yFirstPoint)
         coinHistory.forEachIndexed { index, historyValue ->
-            path.lineTo(horizontalStep * index, historyValue.priceUsd.toFloat() * canvasHeight / maxValue)
+            val yOffset = (maxValue - historyValue.priceUsd.toFloat()) / maximumOffset
+            val y = yOffset * canvasHeight
+            path.lineTo(horizontalStep * index, y)
         }
         drawPath(
             path,
@@ -121,3 +127,13 @@ fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
         )
     }
 }
+/*
+val yFirstPointOffset = coinHistory.first().priceUsd.toFloat() - minValue
+        val yFirstPoint = (maximumOffset - (yFirstPointOffset / maximumOffset)) * canvasHeight
+        path.moveTo(0f, yFirstPoint)
+        coinHistory.forEachIndexed { index, historyValue ->
+            val yOffset = historyValue.priceUsd.toFloat() - minValue
+            val y = (maximumOffset - (yOffset / maximumOffset)) * canvasHeight
+            path.lineTo(horizontalStep * index, y)
+        }
+ */
