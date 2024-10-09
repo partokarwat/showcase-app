@@ -19,7 +19,7 @@ class GetCoinHistoryUseCase
             historyValues.onEach {
                 it.priceUsd =
                     it.priceUsd
-                        .toDouble()
+                        .toBigDecimal()
                         .div(exchangeRateToEUR)
                         .toString()
             }

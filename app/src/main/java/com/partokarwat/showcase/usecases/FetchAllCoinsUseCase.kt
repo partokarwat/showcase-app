@@ -25,7 +25,7 @@ class FetchAllCoinsUseCase
             val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
             coinListRepository.deleteAllCoins()
             for (item in assetsWithChangePercent24Hr) {
-                val priceEUR: Double = item.priceUsd?.toDouble()?.div(exchangeRateToEUR) ?: 0.0
+                val priceEUR: Double = item.priceUsd?.toDouble()?.div(exchangeRateToEUR.toDouble()) ?: 0.0
                 val coin =
                     Coin(
                         item.id,

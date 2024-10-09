@@ -19,7 +19,7 @@ class GetMarketVolumesUseCase
             marketValues.onEach {
                 it.volumeUsd24Hr =
                     it.volumeUsd24Hr
-                        .toDouble()
+                        .toBigDecimal()
                         .div(exchangeRateToEUR)
                         .toString()
             }

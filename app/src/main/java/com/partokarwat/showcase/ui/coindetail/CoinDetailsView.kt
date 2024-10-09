@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +39,7 @@ import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.MarketValueListItem
 import com.partokarwat.showcase.ui.compose.ShowcaseText
+import com.valentinilk.shimmer.shimmer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,6 +78,17 @@ fun CoinDetailsScreen(
         ) {
             if (!coinHistory.isNullOrEmpty()) {
                 CoinHistroyGraph(coinHistory)
+            } else {
+                Box(
+                    Modifier
+                        .shimmer()
+                        .height(
+                            Dimensions.coinChartHeight,
+                        ).fillMaxWidth()
+                        .padding(horizontal = Dimensions.spacingNormal)
+                        .padding(top = Dimensions.spacingNormal)
+                        .background(Color.LightGray),
+                )
             }
             if (coin != null) {
                 CoinListItem(coin, Modifier.padding(bottom = Dimensions.spacingNormal), {})
@@ -99,12 +113,13 @@ fun CoinDetailsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
-    Box {
+    Box(modifier = Modifier.padding(horizontal = Dimensions.spacingNormal)) {
         SuggestionChip(
-            modifier = Modifier.padding(start = Dimensions.spacingNormal),
             onClick = { }, // do nothing
+            enabled = false,
             label = {
                 ShowcaseText(
                     stringResource(R.string.coin_histroy_graph_label),
@@ -118,23 +133,22 @@ fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
                 Modifier
                     .fillMaxWidth()
                     .height(Dimensions.coinChartHeight)
-                    .padding(horizontal = Dimensions.spacingNormal)
                     .padding(top = Dimensions.spacingNormal),
         ) {
             val canvasWidth = size.width
             val canvasHeight = size.height
             val horizontalStep = canvasWidth / coinHistory.size
-            val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toFloat()
-            val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toFloat()
+            val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toBigDecimal()
+            val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toBigDecimal()
             val maximumOffset = maxValue - minValue
             val path = Path()
-            val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toFloat()) / maximumOffset
-            val yFirstPoint = yFirstPointOffset * canvasHeight
-            path.moveTo(0f, yFirstPoint)
+            val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toBigDecimal()) / maximumOffset
+            val yFirstPoint = yFirstPointOffset * canvasHeight.toBigDecimal()
+            path.moveTo(0f, yFirstPoint.toFloat())
             coinHistory.forEachIndexed { index, historyValue ->
-                val yOffset = (maxValue - historyValue.priceUsd.toFloat()) / maximumOffset
-                val y = yOffset * canvasHeight
-                path.lineTo(horizontalStep * index, y)
+                val yOffset = (maxValue - historyValue.priceUsd.toBigDecimal()) / maximumOffset
+                val y = yOffset * canvasHeight.toBigDecimal()
+                path.lineTo(horizontalStep * index, y.toFloat())
             }
             drawPath(
                 path,
@@ -144,13 +158,3 @@ fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
         }
     }
 }
-/*
-val yFirstPointOffset = coinHistory.first().priceUsd.toFloat() - minValue
-        val yFirstPoint = (maximumOffset - (yFirstPointOffset / maximumOffset)) * canvasHeight
-        path.moveTo(0f, yFirstPoint)
-        coinHistory.forEachIndexed { index, historyValue ->
-            val yOffset = historyValue.priceUsd.toFloat() - minValue
-            val y = (maximumOffset - (yOffset / maximumOffset)) * canvasHeight
-            path.lineTo(horizontalStep * index, y)
-        }
- */

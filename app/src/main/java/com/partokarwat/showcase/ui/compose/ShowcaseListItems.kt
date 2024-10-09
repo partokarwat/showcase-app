@@ -100,10 +100,15 @@ fun MarketValueListItem(item: MarketValue) {
             Row {
                 ShowcaseText(item.exchangeId)
                 Spacer(Modifier.weight(1f))
+                ShowcaseText(
+                    String.format(Locale.GERMANY, "%.2f", item.volumePercent.toDouble()) + "%",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light,
+                )
             }
             Row {
                 ShowcaseText(
-                    String.format(Locale.GERMANY, "%.2f", item.volumePercent.toDouble()) + "%",
+                    "${item.baseSymbol}/${item.quoteSymbol}",
                     fontSize = 14.sp,
                 )
                 Spacer(Modifier.weight(1f))
@@ -151,7 +156,9 @@ private fun MarketValueListItemPreview() {
                 "Crypto.com Exchange",
                 "1694772140.48677032",
                 "62267.6968255180129234",
-                "9.99636699417193"
+                "9.99636699417193",
+                "BTC",
+                "USDC"
             ),
         )
     }

@@ -36,6 +36,8 @@ data class MarketValue(
     var volumeUsd24Hr: String,
     val priceUsd: String,
     val volumePercent: String,
+    val baseSymbol: String,
+    val quoteSymbol: String,
 )
 
 @Serializable
