@@ -30,7 +30,7 @@ class CoinDetailViewModel
         private val getCoinHistoryUseCase: GetCoinHistoryUseCase,
         private val getMarketVolumesUseCase: GetMarketVolumesUseCase,
     ) : ViewModel() {
-        val coinId: String = savedStateHandle.get<String>(COIN_ID_SAVED_STATE_KEY)!!
+        private val coinId: String = savedStateHandle.get<String>(COIN_ID_SAVED_STATE_KEY)!!
 
         val coin =
             coinDetailsRepository
