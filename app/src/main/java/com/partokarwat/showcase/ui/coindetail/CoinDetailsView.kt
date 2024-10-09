@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,14 +34,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.partokarwat.showcase.R
+import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
+import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.MarketValueListItem
 import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoinDetailsScreen(
     onBackClick: () -> Unit,
@@ -53,81 +54,94 @@ fun CoinDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    ShowcaseText(
-                        coin?.name.orEmpty(),
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
-            )
+            CoinDetailsTopBar(coin, onBackClick)
         },
     ) { contentPadding ->
-        Column(
-            Modifier
-                .padding(contentPadding)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            if (!coinHistory.isNullOrEmpty()) {
-                CoinHistroyGraph(coinHistory)
-            } else {
-                Box(
-                    Modifier
-                        .shimmer()
-                        .height(
-                            Dimensions.coinChartHeight,
-                        ).fillMaxWidth()
-                        .padding(horizontal = Dimensions.spacingNormal)
-                        .padding(top = Dimensions.spacingNormal)
-                        .background(Color.LightGray),
+        CoinDetailsContent(contentPadding, coinHistory, coin, coinMarkets)
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CoinDetailsTopBar(
+    coin: Coin?,
+    onBackClick: () -> Unit,
+) {
+    TopAppBar(
+        title = {
+            ShowcaseText(
+                coin?.name.orEmpty(),
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
                 )
             }
-            if (coin != null) {
-                CoinListItem(coin, Modifier.padding(bottom = Dimensions.spacingNormal), {})
-            }
-            if (!coinMarkets.isNullOrEmpty()) {
-                ShowcaseText(
-                    text = stringResource(R.string.title_markets_list),
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(Dimensions.minimumTouchTarget)
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer,
-                            ).padding(horizontal = Dimensions.spacingNormal)
-                            .wrapContentHeight(align = Alignment.CenterVertically),
-                )
-                for (marketValue in coinMarkets) {
-                    MarketValueListItem(marketValue)
-                }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.primaryContainer),
+    )
+}
+
+@Composable
+private fun CoinDetailsContent(
+    contentPadding: PaddingValues,
+    coinHistory: List<HistoryValue>?,
+    coin: Coin?,
+    coinMarkets: List<MarketValue>?,
+) {
+    Column(
+        Modifier
+            .padding(contentPadding)
+            .verticalScroll(rememberScrollState()),
+    ) {
+        if (!coinHistory.isNullOrEmpty()) {
+            CoinHistroyGraph(coinHistory)
+        } else {
+            Box(
+                Modifier
+                    .shimmer()
+                    .height(
+                        Dimensions.coinChartHeight,
+                    ).fillMaxWidth()
+                    .padding(horizontal = Dimensions.spacingNormal)
+                    .padding(top = Dimensions.spacingNormal)
+                    .background(Color.LightGray),
+            )
+        }
+        if (coin != null) {
+            CoinListItem(coin, Modifier.padding(bottom = Dimensions.spacingNormal), {})
+        }
+        if (!coinMarkets.isNullOrEmpty()) {
+            MarketValueListHeader()
+            for (marketValue in coinMarkets) {
+                MarketValueListItem(marketValue)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
+private fun MarketValueListHeader() {
+    ShowcaseText(
+        text = stringResource(R.string.title_markets_list),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(Dimensions.minimumTouchTarget)
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer,
+                ).padding(horizontal = Dimensions.spacingNormal)
+                .wrapContentHeight(align = Alignment.CenterVertically),
+    )
+}
+
+@Composable
+private fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
     Box(modifier = Modifier.padding(horizontal = Dimensions.spacingNormal)) {
-        SuggestionChip(
-            onClick = { }, // do nothing
-            enabled = false,
-            label = {
-                ShowcaseText(
-                    stringResource(R.string.coin_histroy_graph_label),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light,
-                )
-            },
-        )
+        HistoryGraphTimeRangeLabel()
         Canvas(
             modifier =
                 Modifier
@@ -157,4 +171,19 @@ fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
             )
         }
     }
+}
+
+@Composable
+private fun HistoryGraphTimeRangeLabel() {
+    SuggestionChip(
+        onClick = { }, // do nothing
+        enabled = false,
+        label = {
+            ShowcaseText(
+                stringResource(R.string.coin_histroy_graph_label),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+            )
+        },
+    )
 }
