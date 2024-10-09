@@ -2,6 +2,7 @@ package com.partokarwat.showcase.ui.coindetail
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -26,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.remote.HistoryValue
@@ -97,34 +101,47 @@ fun CoinDetailsScreen(
 
 @Composable
 fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
-    Canvas(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(Dimensions.coinChartHeight)
-                .padding(horizontal = Dimensions.spacingNormal)
-                .padding(top = Dimensions.spacingNormal),
-    ) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val horizontalStep = canvasWidth / coinHistory.size
-        val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toFloat()
-        val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toFloat()
-        val maximumOffset = maxValue - minValue
-        val path = Path()
-        val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toFloat()) / maximumOffset
-        val yFirstPoint = yFirstPointOffset * canvasHeight
-        path.moveTo(0f, yFirstPoint)
-        coinHistory.forEachIndexed { index, historyValue ->
-            val yOffset = (maxValue - historyValue.priceUsd.toFloat()) / maximumOffset
-            val y = yOffset * canvasHeight
-            path.lineTo(horizontalStep * index, y)
-        }
-        drawPath(
-            path,
-            Color.Blue,
-            style = Stroke(width = 10f),
+    Box {
+        SuggestionChip(
+            modifier = Modifier.padding(start = Dimensions.spacingNormal),
+            onClick = { }, // do nothing
+            label = {
+                ShowcaseText(
+                    stringResource(R.string.coin_histroy_graph_label),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light,
+                )
+            },
         )
+        Canvas(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(Dimensions.coinChartHeight)
+                    .padding(horizontal = Dimensions.spacingNormal)
+                    .padding(top = Dimensions.spacingNormal),
+        ) {
+            val canvasWidth = size.width
+            val canvasHeight = size.height
+            val horizontalStep = canvasWidth / coinHistory.size
+            val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toFloat()
+            val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toFloat()
+            val maximumOffset = maxValue - minValue
+            val path = Path()
+            val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toFloat()) / maximumOffset
+            val yFirstPoint = yFirstPointOffset * canvasHeight
+            path.moveTo(0f, yFirstPoint)
+            coinHistory.forEachIndexed { index, historyValue ->
+                val yOffset = (maxValue - historyValue.priceUsd.toFloat()) / maximumOffset
+                val y = yOffset * canvasHeight
+                path.lineTo(horizontalStep * index, y)
+            }
+            drawPath(
+                path,
+                Color.Blue,
+                style = Stroke(width = 10f),
+            )
+        }
     }
 }
 /*
