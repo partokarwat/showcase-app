@@ -33,7 +33,7 @@ data class CoinHistoryResponse(
 @Serializable
 data class MarketValue(
     val exchangeId: String,
-    val volumeUsd24Hr: String,
+    var volumeUsd24Hr: String,
     val priceUsd: String,
     val volumePercent: String,
 )

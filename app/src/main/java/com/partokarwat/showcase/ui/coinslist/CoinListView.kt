@@ -158,7 +158,7 @@ fun LoadingScreen(contentPadding: PaddingValues) =
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(Modifier.height(14.dp).width(200.dp).background(Color.LightGray))
-        repeat(10) {
+        repeat(20) {
             CoinListItemSkeleton()
         }
         Spacer(Modifier.weight(1f))
@@ -239,7 +239,7 @@ private fun CoinsScreen(
                 modifier = Modifier.weight(1f),
             ) {
                 items(listState.size) { itemIndex ->
-                    CoinListItem(listState[itemIndex], onCoinClick)
+                    CoinListItem(listState[itemIndex], Modifier, onCoinClick)
                 }
             }
         }

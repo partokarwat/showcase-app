@@ -2,6 +2,7 @@ package com.partokarwat.showcase.usecases
 
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.repository.CoinListRepository
+import com.partokarwat.showcase.data.repository.ConversionRateRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,6 +11,7 @@ class FetchAllCoinsUseCase
     @Inject
     constructor(
         private val coinListRepository: CoinListRepository,
+        private val conversionRateRepository: ConversionRateRepository,
     ) {
         suspend operator fun invoke() {
             val cryptoCoroutinesApiResponse = coinListRepository.getAssetsFromCoinCapApi()
@@ -20,7 +22,7 @@ class FetchAllCoinsUseCase
                 allAssetsFromApi.filter {
                     it.changePercent24Hr != null
                 }
-            val exchangeRateToEUR = coinListRepository.getExchangeRateToEuro()
+            val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
             coinListRepository.deleteAllCoins()
             for (item in assetsWithChangePercent24Hr) {
                 val priceEUR: Double = item.priceUsd?.toDouble()?.div(exchangeRateToEUR) ?: 0.0

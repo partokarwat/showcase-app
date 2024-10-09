@@ -20,16 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
+import com.partokarwat.showcase.data.remote.MarketValue
 import com.valentinilk.shimmer.shimmer
 import java.util.Locale
 
 @Composable
 fun CoinListItem(
     item: Coin,
+    modifier: Modifier = Modifier,
     onCoinClick: (Coin) -> Unit = {},
 ) {
     Box(
-        Modifier
+        modifier
             .padding(horizontal = Dimensions.spacingNormal)
             .padding(top = Dimensions.spacingNormal)
             .clickable { onCoinClick(item) },
@@ -87,6 +89,35 @@ fun CoinListItemSkeleton() {
     }
 }
 
+@Composable
+fun MarketValueListItem(item: MarketValue) {
+    Box(
+        Modifier
+            .padding(horizontal = Dimensions.spacingNormal)
+            .padding(top = Dimensions.spacingNormal),
+    ) {
+        Column {
+            Row {
+                ShowcaseText(item.exchangeId)
+                Spacer(Modifier.weight(1f))
+            }
+            Row {
+                ShowcaseText(
+                    String.format(Locale.GERMANY, "%.2f", item.volumePercent.toDouble()) + "%",
+                    fontSize = 14.sp,
+                )
+                Spacer(Modifier.weight(1f))
+                ShowcaseText(
+                    "€ " + String.format(Locale.GERMANY, "%f", item.volumeUsd24Hr.toDouble()),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light,
+                    color = colorResource(R.color.teal_700),
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun CoinListItemPreview() {
@@ -108,5 +139,20 @@ private fun CoinListItemPreview() {
 private fun CoinListItemSkeletonPreview() {
     Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
         CoinListItemSkeleton()
+    }
+}
+
+@Preview
+@Composable
+private fun MarketValueListItemPreview() {
+    Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+        MarketValueListItem(
+            MarketValue(
+                "Crypto.com Exchange",
+                "1694772140.48677032",
+                "62267.6968255180129234",
+                "9.99636699417193"
+            ),
+        )
     }
 }

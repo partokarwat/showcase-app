@@ -6,4 +6,5 @@ object Dimensions {
     val spacingSmall = 8.dp
     val spacingNormal = 16.dp
     val minimumTouchTarget = 48.dp
+    val coinChartHeight = 200.dp
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
+import com.partokarwat.showcase.usecases.GetMarketVolumesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class CoinDetailViewModel
     constructor(
         savedStateHandle: SavedStateHandle,
         private val coinDetailsRepository: CoinDetailsRepository,
+        private val getMarketVolumesUseCase: GetMarketVolumesUseCase,
     ) : ViewModel() {
         val coinId: String = savedStateHandle.get<String>(COIN_ID_SAVED_STATE_KEY)!!
 
@@ -48,7 +50,7 @@ class CoinDetailViewModel
                 withContext(Dispatchers.Main) {
                     try {
                         _coinHistory.value = coinDetailsRepository.getCoinHistory(coinId)
-                        _coinMarkets.value = coinDetailsRepository.getCoinMarkets(coinId)
+                        _coinMarkets.value = getMarketVolumesUseCase(coinId)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }

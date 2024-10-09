@@ -51,11 +51,4 @@ class CoinListRepository
         }
 
         suspend fun getAssetsFromCoinCapApi(): AssetResponse = coinCapApi.getAsset()
-
-        suspend fun getExchangeRateToEuro(): Double =
-            coinCapApi
-                .getConversionRateToEUR()
-                .data
-                .rateUsd
-                .toDouble()
     }
