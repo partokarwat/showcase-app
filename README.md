@@ -8,8 +8,8 @@ Concise and comprehensive project that highlights key aspects of Android develop
 | --- |  --- | 
 | <img src="https://github.com/user-attachments/assets/42f5c2a1-2652-4024-ad2c-ad8003836887" width="200"> |  <img src="https://github.com/user-attachments/assets/050af7b3-4abf-453a-afd2-88a5685b42f9" width="200"> | 
 
-| Skeleton Loader | Switch Coins | Pull to refresh | Offline mode |
-| --- |  --- |  --- | --- | 
+| Skeleton Loader | Switch Coins | Pull to refresh | Offline mode | Orientation change |
+| --- |  --- |  --- | --- | --- | 
 
 This project includes two screens that cover the following key functionalities:
 
