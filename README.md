@@ -8,11 +8,15 @@ Concise and comprehensive project that highlights key aspects of Android develop
 | --- |  --- | 
 | <img src="https://github.com/user-attachments/assets/875bb5f8-3851-45ec-9464-131dc01d2d1d" width="200"> |  <img src="https://github.com/user-attachments/assets/7103f2e0-225a-4677-9568-979bad86cfda" width="200"> | 
 
-| Skeleton Loader | Switch Coins | Pull to refresh | Offline mode | Orientation change |
-| --- |  --- |  --- | --- | --- | 
-| <img src="https://github.com/user-attachments/assets/56961511-e576-45cc-9248-48c4be162612" width="200"> |  <img src="https://github.com/user-attachments/assets/ceef7a58-6b93-45e8-9a18-1f6e78516b0c" width="200"> |  <img src="https://github.com/user-attachments/assets/8f678d94-8cf6-49f9-8f99-61e4092a08b7" width="200"> | <img src="https://github.com/user-attachments/assets/9a2fcc1f-8ee1-44c8-80de-af9f58528585" width="200">  | --- | 
+| Skeleton Loader | Switch Coins | Pull to refresh |
+| --- |  --- |  --- |  
+| <img src="https://github.com/user-attachments/assets/56961511-e576-45cc-9248-48c4be162612" width="200"> |  <img src="https://github.com/user-attachments/assets/ceef7a58-6b93-45e8-9a18-1f6e78516b0c" width="200"> |  <img src="https://github.com/user-attachments/assets/8f678d94-8cf6-49f9-8f99-61e4092a08b7" width="200"> |
 
-This project includes two screens that cover the following key functionalities:
+https://github.com/user-attachments/assets/ec2d02fc-e0e4-4c6c-bb5e-7632fb169a07
+
+This project include
+
+s two screens that cover the following key functionalities:
 
 * Fetching and Displaying Data
   * Utilize the CoinCap REST API to fetch a list of crypto coins.
