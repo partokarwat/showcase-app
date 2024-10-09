@@ -14,9 +14,7 @@ Concise and comprehensive project that highlights key aspects of Android develop
 
 https://github.com/user-attachments/assets/ec2d02fc-e0e4-4c6c-bb5e-7632fb169a07
 
-This project include
-
-s two screens that cover the following key functionalities:
+This project includes two screens that cover the following key functionalities:
 
 * Fetching and Displaying Data
   * Utilize the CoinCap REST API to fetch a list of crypto coins.
