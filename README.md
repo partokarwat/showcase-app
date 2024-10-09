@@ -6,7 +6,7 @@ Concise and comprehensive project that highlights key aspects of Android develop
 
 | List Screen |  Detail Screen |
 | --- |  --- | 
-| <img src="https://github.com/user-attachments/assets/42f5c2a1-2652-4024-ad2c-ad8003836887" width="200"> |  <img src="https://github.com/user-attachments/assets/050af7b3-4abf-453a-afd2-88a5685b42f9" width="200"> | 
+| <img src="https://github.com/user-attachments/assets/875bb5f8-3851-45ec-9464-131dc01d2d1d" width="200"> |  <img src="https://github.com/user-attachments/assets/7103f2e0-225a-4677-9568-979bad86cfda" width="200"> | 
 
 | Skeleton Loader | Switch Coins | Pull to refresh | Offline mode | Orientation change |
 | --- |  --- |  --- | --- | --- | 
