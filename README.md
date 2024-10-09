@@ -4,10 +4,9 @@ Concise and comprehensive project that highlights key aspects of Android develop
 
 ## The Project Overview
 
-| List Screen | 
-| --- | 
-| <img src="https://github.com/user-attachments/assets/032f428c-a2ee-4b41-a390-56b9f800b3eb" width="200"> | 
-
+| List Screen |  Detail Screen |
+| --- |  --- | 
+| <img src="https://github.com/user-attachments/assets/1b6a743a-ea53-4002-8f65-c42d9141b224" width="200"> |  <img src="https://github.com/user-attachments/assets/41bc8516-129d-4a0b-8662-a990b42e452a" width="200"> | 
 
 
 This project includes two screens that cover the following key functionalities:
