@@ -4,6 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.partokarwat.showcase.utilities.testCoin
+import com.partokarwat.showcase.utilities.testCoins
+import com.partokarwat.showcase.utilities.updatedTestCoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -18,9 +21,6 @@ import org.junit.runner.RunWith
 class CoinDaoTest {
     private lateinit var database: AppDatabase
     private lateinit var coinDao: CoinDao
-    private val bitcoin = Coin("bitcoin", "Bitcoin", "BTC", 62157.5903, -2.23)
-    private val ethereum = Coin("ethereum", "Ethereum", "ETH", 2510.16464, 3.57)
-    private val binanceCoin = Coin("binance-coin", "BNB", "BNB", 552.61, -3.30)
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -32,7 +32,7 @@ class CoinDaoTest {
             database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
             coinDao = database.coinDao()
 
-            coinDao.upsertAll(listOf(bitcoin, ethereum, binanceCoin))
+            coinDao.upsertAll(testCoins)
         }
 
     @After
@@ -46,9 +46,9 @@ class CoinDaoTest {
             val coinList = coinDao.getTop100GainersCoins().first()
             assertThat(coinList.size, equalTo(3))
 
-            assertThat(coinList[0], equalTo(ethereum))
-            assertThat(coinList[1], equalTo(bitcoin))
-            assertThat(coinList[2], equalTo(binanceCoin))
+            assertThat(coinList[0], equalTo(testCoins[1]))
+            assertThat(coinList[1], equalTo(testCoins[0]))
+            assertThat(coinList[2], equalTo(testCoins[2]))
         }
 
     @Test
@@ -57,37 +57,34 @@ class CoinDaoTest {
             val coinList = coinDao.getTop100LoserCoins().first()
             assertThat(coinList.size, equalTo(3))
 
-            assertThat(coinList[0], equalTo(binanceCoin))
-            assertThat(coinList[1], equalTo(bitcoin))
-            assertThat(coinList[2], equalTo(ethereum))
+            assertThat(coinList[0], equalTo(testCoins[2]))
+            assertThat(coinList[1], equalTo(testCoins[0]))
+            assertThat(coinList[2], equalTo(testCoins[1]))
         }
 
     @Test
     fun testGetCoin() =
         runBlocking {
-            assertThat(coinDao.getCoinById(ethereum.id).first(), equalTo(ethereum))
+            assertThat(coinDao.getCoinById(testCoins[1].id).first(), equalTo(testCoins[1]))
         }
 
     @Test
     fun testInsertCoin() =
         runBlocking {
-            val binanceCoinUpdated = Coin("binance-coin", "BNB", "BNB", 621.61, 5.30)
-            coinDao.insertCoin(binanceCoinUpdated)
+            coinDao.insertCoin(updatedTestCoin)
             val coinList = coinDao.getTop100LoserCoins().first()
             assertThat(coinList.size, equalTo(3))
-            assertThat(coinList[2], equalTo(binanceCoinUpdated))
+            assertThat(coinList[2], equalTo(updatedTestCoin))
         }
 
     @Test
     fun testInsertCoins() =
         runBlocking {
-            val binanceCoinUpdated = Coin("binance-coin", "BNB", "BNB", 621.61, 5.30)
-            val solana = Coin("solana", "Solana", "SOL", 147.98545, -4.46)
-            coinDao.insertCoins(listOf(binanceCoinUpdated, solana))
+            coinDao.insertCoins(listOf(updatedTestCoin, testCoin))
             val coinList = coinDao.getTop100LoserCoins().first()
             assertThat(coinList.size, equalTo(4))
-            assertThat(coinList[3], equalTo(binanceCoinUpdated))
-            assertThat(coinList[0], equalTo(solana))
+            assertThat(coinList[3], equalTo(updatedTestCoin))
+            assertThat(coinList[0], equalTo(testCoin))
         }
 
     @Test
