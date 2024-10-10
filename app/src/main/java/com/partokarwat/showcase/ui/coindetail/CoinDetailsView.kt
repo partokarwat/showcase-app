@@ -68,6 +68,7 @@ fun CoinDetailsScreen(
                     activity.getString(R.string.init_coin_details_error_text),
                     Toast.LENGTH_LONG,
                 ).show()
+            coinDetailsViewModel.resetInitError()
         }
     }
 }

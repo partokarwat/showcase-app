@@ -56,12 +56,15 @@ class CoinDetailViewModel
                     try {
                         _coinHistory.value = getCoinHistoryUseCase(coinId)
                         _coinMarkets.value = getMarketVolumesUseCase(coinId)
-                        _isInitError.value = false
                     } catch (e: Exception) {
-                        _isInitError.value = true
+                        _isInitError.emit(true)
                         e.printStackTrace()
                     }
                 }
             }
+        }
+
+        fun resetInitError() {
+            _isInitError.value = false
         }
     }
