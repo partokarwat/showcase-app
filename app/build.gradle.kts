@@ -36,6 +36,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+
+        // Enable Coroutines and Flow APIs
+        freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlinx.coroutines.FlowPreview"
     }
     buildFeatures {
         compose = true
@@ -55,6 +59,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // ui
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.material)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.compose)

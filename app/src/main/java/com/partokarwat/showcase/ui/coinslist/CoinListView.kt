@@ -33,7 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,6 +57,7 @@ import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 @Composable
 fun CoinListScreen(
@@ -64,20 +65,32 @@ fun CoinListScreen(
     onCoinClick: (Coin) -> Unit = {},
     coinListViewModel: CoinListViewModel = hiltViewModel(),
 ) {
-    val items = coinListViewModel.items.collectAsStateWithLifecycle().value
-    val lastListUpdateTimestamp = coinListViewModel.lastListUpdateTimestamp.collectAsStateWithLifecycle().value
+    val items = coinListViewModel.items.observeAsState().value
+    val lastListUpdateTimestamp = coinListViewModel.lastListUpdateTimestamp.observeAsState().value
     val isError = coinListViewModel.isError.collectAsStateWithLifecycle(IS_ERROR_INITIAL_VALUE).value
-    val isRefreshing = coinListViewModel.isRefreshing.collectAsStateWithLifecycle(IS_REFRESHING_INITIAL_VALUE).value
-    val isTopGainers = coinListViewModel.isTopGainers.collectAsStateWithLifecycle(IS_TOP_GAINERS_INITIAL_VALUE).value
+    val isRefreshing = coinListViewModel.isRefreshing.observeAsState().value
+    val isTopGainers =
+        coinListViewModel.isTopGainers
+            .collectAsStateWithLifecycle(
+                IS_TOP_GAINERS_INITIAL_VALUE,
+            ).value
 
-    ScreenContent(items, lastListUpdateTimestamp, isRefreshing, isTopGainers, onCoinClick, coinListViewModel)
+    ScreenContent(
+        items,
+        lastListUpdateTimestamp,
+        isRefreshing ?: IS_REFRESHING_INITIAL_VALUE,
+        isTopGainers,
+        onCoinClick,
+        coinListViewModel,
+    )
     if (isError.first) {
         Toast
             .makeText(
                 activity,
-                activity.getString(R.string.init_coin_details_error_text),
+                activity.getString(isError.second),
                 Toast.LENGTH_LONG,
             ).show()
+        coinListViewModel.resetIsError()
     }
 }
 
@@ -201,7 +214,7 @@ private fun CoinListScreen(
                     text =
                         stringResource(
                             R.string.last_list_update,
-                            SimpleDateFormat("dd. MMM yyyy HH:mm").format(
+                            SimpleDateFormat("dd. MMM yyyy HH:mm", Locale.GERMANY).format(
                                 Date(lastListUpdateTimestamp),
                             ),
                         ),

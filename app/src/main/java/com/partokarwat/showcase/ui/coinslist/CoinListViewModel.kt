@@ -1,6 +1,9 @@
 package com.partokarwat.showcase.ui.coinslist
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
@@ -10,8 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,20 +26,27 @@ class CoinListViewModel
         private val coinListRepository: CoinListRepository,
         private val fetchAllCoinsUseCase: FetchAllCoinsUseCase,
     ) : ViewModel() {
-        private val _items = MutableStateFlow(emptyList<Coin>())
-        val items: StateFlow<List<Coin>?> = _items
+        private val _isTopGainers = MutableStateFlow(IS_TOP_GAINERS_INITIAL_VALUE)
+        val isTopGainers: Flow<Boolean> get() = _isTopGainers.filterNotNull()
 
-        private val _lastListUpdateTimestamp = MutableStateFlow(0L)
-        val lastListUpdateTimestamp: StateFlow<Long?> = _lastListUpdateTimestamp
+        val items: LiveData<List<Coin>> =
+            isTopGainers
+                .flatMapLatest { isTopGainers ->
+                    if (isTopGainers) {
+                        coinListRepository.getTop100GainersCoins()
+                    } else {
+                        coinListRepository.getTop100LoserCoins()
+                    }
+                }.asLiveData()
+
+        val lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData()
 
         private val _isError = MutableStateFlow(IS_ERROR_INITIAL_VALUE)
         val isError: Flow<Pair<Boolean, Int>> get() = _isError.filterNotNull()
 
-        private val _isRefreshing = MutableStateFlow(IS_REFRESHING_INITIAL_VALUE)
-        val isRefreshing: Flow<Boolean> get() = _isRefreshing.filterNotNull()
-
-        private val _isTopGainers = MutableStateFlow(IS_TOP_GAINERS_INITIAL_VALUE)
-        val isTopGainers: Flow<Boolean> get() = _isTopGainers.filterNotNull()
+        private val _isRefreshing = MutableLiveData(IS_REFRESHING_INITIAL_VALUE)
+        val isRefreshing: LiveData<Boolean>
+            get() = _isRefreshing
 
         init {
             viewModelScope.launch {
@@ -44,27 +54,7 @@ class CoinListViewModel
                     try {
                         fetchAllCoinsUseCase()
                     } catch (e: Exception) {
-                        _isError.value = Pair(true, R.string.loading_data_from_network_error_text)
-                        e.printStackTrace()
-                    }
-                    try {
-                        val coinListFlow =
-                            if (_isTopGainers.value) {
-                                coinListRepository.getTop100GainersCoins()
-                            } else {
-                                coinListRepository
-                                    .getTop100LoserCoins()
-                            }
-                        coinListFlow.collect {
-                            _items.value = it
-                        }
-
-                        coinListRepository.getLastDataUpdateTimestamp().collect {
-                            _lastListUpdateTimestamp.value = it
-                        }
-                        _isError.value = IS_ERROR_INITIAL_VALUE
-                    } catch (e: Exception) {
-                        _isError.value = Pair(true, R.string.loading_data_from_database_error_text)
+                        _isError.emit(Pair(true, R.string.loading_data_from_network_error_text))
                         e.printStackTrace()
                     }
                 }
@@ -75,7 +65,7 @@ class CoinListViewModel
             viewModelScope.launch {
                 try {
                     _isRefreshing.value = true
-                    withContext(Dispatchers.Default) {
+                    withContext(Dispatchers.IO) {
                         fetchAllCoinsUseCase()
                     }
                     _isRefreshing.value = false
@@ -90,21 +80,16 @@ class CoinListViewModel
         fun switchCoinListByPerformance() {
             viewModelScope.launch {
                 try {
-                    if (!_isTopGainers.value) {
-                        coinListRepository.getTop100GainersCoins().collect {
-                            _items.value = it
-                        }
-                    } else {
-                        coinListRepository.getTop100LoserCoins().collect {
-                            _items.value = it
-                        }
-                    }
-                    _isTopGainers.value = !_isTopGainers.value
+                    _isTopGainers.emit(!_isTopGainers.value)
                 } catch (e: Exception) {
                     _isError.value = Pair(true, R.string.technical_error_text)
                     e.printStackTrace()
                 }
             }
+        }
+
+        fun resetIsError() {
+            _isError.value = IS_ERROR_INITIAL_VALUE
         }
 
         companion object {

@@ -13,8 +13,6 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-val TIMESTAMP = longPreferencesKey("timestamp")
-
 @Singleton
 class CoinListRepository
     @Inject
@@ -51,4 +49,8 @@ class CoinListRepository
         }
 
         suspend fun getAssetsFromCoinCapApi(): AssetResponse = coinCapApi.getAsset()
+
+        companion object {
+            val TIMESTAMP = longPreferencesKey("timestamp")
+        }
     }
