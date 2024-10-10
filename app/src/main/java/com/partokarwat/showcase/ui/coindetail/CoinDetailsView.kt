@@ -111,7 +111,7 @@ private fun CoinDetailsContent(
     ) {
         if (!coinHistory.isNullOrEmpty()) {
             CoinHistroyGraph(coinHistory)
-        } else if (!isInitError) {
+        } else {
             Box(
                 Modifier
                     .shimmer()
