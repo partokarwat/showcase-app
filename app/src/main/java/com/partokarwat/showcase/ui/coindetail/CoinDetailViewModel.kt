@@ -47,13 +47,18 @@ class CoinDetailViewModel
         private val _coinMarkets = MutableStateFlow<List<MarketValue>?>(null)
         val coinMarkets: Flow<List<MarketValue>> get() = _coinMarkets.filterNotNull()
 
+        private val _isInitError = MutableStateFlow(false)
+        val isInitError: Flow<Boolean> get() = _isInitError.filterNotNull()
+
         init {
             viewModelScope.launch {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
                     try {
                         _coinHistory.value = getCoinHistoryUseCase(coinId)
                         _coinMarkets.value = getMarketVolumesUseCase(coinId)
+                        _isInitError.value = false
                     } catch (e: Exception) {
+                        _isInitError.value = true
                         e.printStackTrace()
                     }
                 }

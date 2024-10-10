@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsScreen
-import com.partokarwat.showcase.ui.coinslist.CoinsScreen
+import com.partokarwat.showcase.ui.coinslist.CoinListScreen
 
 @Composable
 fun ShowcaseApp() {
@@ -23,7 +23,7 @@ fun ShowcaseNavHost(navController: NavHostController) {
     val activity = (LocalContext.current as Activity)
     NavHost(navController = navController, startDestination = Screen.Coins.route) {
         composable(route = Screen.Coins.route) {
-            CoinsScreen(
+            CoinListScreen(
                 activity,
                 onCoinClick = {
                     navController.navigate(
@@ -39,6 +39,7 @@ fun ShowcaseNavHost(navController: NavHostController) {
             arguments = Screen.CoinDetail.navArguments,
         ) {
             CoinDetailsScreen(
+                activity,
                 onBackClick = { navController.navigateUp() },
             )
         }
