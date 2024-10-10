@@ -42,7 +42,7 @@ This project includes two screens that cover the following key functionalities:
 * Pull to refresh the list data with compose animation
 * Switch coins in list based on their performance
 * Implementing navigation between screens
-* Using and understanding the MVI and Clean Code architecture
+* Using and understanding the MVVM and Clean Code architecture
 * Organizing files in a clear and efficient manner
 * Employing the right libraries for asynchronous communication
 * Writing unit tests for robust code
