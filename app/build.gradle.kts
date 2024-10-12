@@ -92,4 +92,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.app.crash.turbine)
     testImplementation(libs.assertj)
+    testImplementation(libs.hilt.android.testing)
 }
