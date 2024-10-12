@@ -1,8 +1,11 @@
 package com.partokarwat.showcase.usecases
 
 import com.partokarwat.showcase.data.db.Coin
+import com.partokarwat.showcase.data.remote.Asset
 import com.partokarwat.showcase.data.repository.CoinListRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
+import kotlinx.coroutines.flow.first
+import java.math.BigDecimal
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,9 +26,17 @@ class FetchAllCoinsUseCase
                     it.changePercent24Hr != null
                 }
             val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
-            coinListRepository.deleteAllCoins()
+            deleteNoMoreProvidedCoinsFromDatabase(assetsWithChangePercent24Hr)
+            insertNewCoinsAndUpdateOldCoins(assetsWithChangePercent24Hr, exchangeRateToEUR)
+        }
+
+        private fun insertNewCoinsAndUpdateOldCoins(
+            assetsWithChangePercent24Hr: List<Asset>,
+            exchangeRateToEUR: BigDecimal,
+        ) {
             for (item in assetsWithChangePercent24Hr) {
-                val priceEUR: Double = item.priceUsd?.toDouble()?.div(exchangeRateToEUR.toDouble()) ?: 0.0
+                val priceEUR: Double =
+                    item.priceUsd?.toDouble()?.div(exchangeRateToEUR.toDouble()) ?: 0.0
                 val coin =
                     Coin(
                         item.id,
@@ -35,6 +46,17 @@ class FetchAllCoinsUseCase
                         item.changePercent24Hr?.toDouble() ?: 0.0,
                     )
                 coinListRepository.insertCoin(coin)
+            }
+        }
+
+        private suspend fun deleteNoMoreProvidedCoinsFromDatabase(assetsWithChangePercent24Hr: List<Asset>) {
+            val savedCoins = coinListRepository.getAllCoins().first()
+            val assetsWithChangePercent24HrIds = assetsWithChangePercent24Hr.map { it.id }
+            val savedCoinsIds = savedCoins.map { it.id }
+            val commonIds = assetsWithChangePercent24HrIds.intersect(savedCoinsIds.toSet())
+            val coinsToDelete = savedCoins.filter { it.id !in commonIds }
+            for (coin in coinsToDelete) {
+                coinListRepository.deleteCoinById(coin.id)
             }
         }
     }

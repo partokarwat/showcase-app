@@ -33,9 +33,9 @@ class CoinListViewModel
             isTopGainers
                 .flatMapLatest { isTopGainers ->
                     if (isTopGainers) {
-                        coinListRepository.getTop100GainersCoins()
+                        coinListRepository.getTopGainersCoins(LIST_SIZE)
                     } else {
-                        coinListRepository.getTop100LoserCoins()
+                        coinListRepository.getTopLoserCoins(LIST_SIZE)
                     }
                 }.asLiveData()
 
@@ -65,7 +65,7 @@ class CoinListViewModel
             viewModelScope.launch {
                 try {
                     _isRefreshing.value = true
-                    withContext(Dispatchers.IO) {
+                    withContext(Dispatchers.Default) {
                         fetchAllCoinsUseCase()
                     }
                     _isRefreshing.value = false
@@ -96,5 +96,6 @@ class CoinListViewModel
             val IS_ERROR_INITIAL_VALUE = Pair(false, 0)
             const val IS_REFRESHING_INITIAL_VALUE = false
             const val IS_TOP_GAINERS_INITIAL_VALUE = true
+            const val LIST_SIZE = 100
         }
     }

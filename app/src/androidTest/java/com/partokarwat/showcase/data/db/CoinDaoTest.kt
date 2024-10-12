@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.LIST_SIZE
 import com.partokarwat.showcase.utilities.testCoin
 import com.partokarwat.showcase.utilities.testCoins
 import com.partokarwat.showcase.utilities.updatedTestCoin
@@ -41,9 +42,9 @@ class CoinDaoTest {
     }
 
     @Test
-    fun getTop100GainersCoins() =
+    fun getTopGainersCoins() =
         runBlocking {
-            val coinList = coinDao.getTop100GainersCoins().first()
+            val coinList = coinDao.getTopGainersCoins(LIST_SIZE).first()
             assertThat(coinList.size, equalTo(3))
 
             assertThat(coinList[0], equalTo(testCoins[1]))
@@ -52,9 +53,9 @@ class CoinDaoTest {
         }
 
     @Test
-    fun getTop100LoserCoins() =
+    fun getTopLoserCoins() =
         runBlocking {
-            val coinList = coinDao.getTop100LoserCoins().first()
+            val coinList = coinDao.getTopLoserCoins(LIST_SIZE).first()
             assertThat(coinList.size, equalTo(3))
 
             assertThat(coinList[0], equalTo(testCoins[2]))
@@ -72,7 +73,7 @@ class CoinDaoTest {
     fun testInsertCoin() =
         runBlocking {
             coinDao.insertCoin(updatedTestCoin)
-            val coinList = coinDao.getTop100LoserCoins().first()
+            val coinList = coinDao.getTopLoserCoins(LIST_SIZE).first()
             assertThat(coinList.size, equalTo(3))
             assertThat(coinList[2], equalTo(updatedTestCoin))
         }
@@ -81,7 +82,7 @@ class CoinDaoTest {
     fun testInsertCoins() =
         runBlocking {
             coinDao.insertCoins(listOf(updatedTestCoin, testCoin))
-            val coinList = coinDao.getTop100LoserCoins().first()
+            val coinList = coinDao.getTopLoserCoins(LIST_SIZE).first()
             assertThat(coinList.size, equalTo(4))
             assertThat(coinList[3], equalTo(updatedTestCoin))
             assertThat(coinList[0], equalTo(testCoin))
@@ -91,7 +92,7 @@ class CoinDaoTest {
     fun testDeleteAll() =
         runBlocking {
             coinDao.deleteAllCoins()
-            val coinList = coinDao.getTop100LoserCoins().first()
+            val coinList = coinDao.getTopLoserCoins(LIST_SIZE).first()
             assertThat(coinList.size, equalTo(0))
         }
 }

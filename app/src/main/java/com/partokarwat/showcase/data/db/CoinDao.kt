@@ -1,19 +1,22 @@
 package com.partokarwat.showcase.data.db
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
-import androidx.room.Insert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CoinDao {
-    @Query("SELECT * FROM coins ORDER BY changePercent24Hr DESC LIMIT 100")
-    fun getTop100GainersCoins(): Flow<List<Coin>>
+    @Query("SELECT * FROM coins")
+    fun getCoinAllCoins(): Flow<List<Coin>>
 
-    @Query("SELECT * FROM coins ORDER BY changePercent24Hr ASC LIMIT 100")
-    fun getTop100LoserCoins(): Flow<List<Coin>>
+    @Query("SELECT * FROM coins ORDER BY changePercent24Hr DESC LIMIT :amount")
+    fun getTopGainersCoins(amount: Int): Flow<List<Coin>>
+
+    @Query("SELECT * FROM coins ORDER BY changePercent24Hr ASC LIMIT :amount")
+    fun getTopLoserCoins(amount: Int): Flow<List<Coin>>
 
     @Query("SELECT * FROM coins WHERE id = :id LIMIT 1")
     fun getCoinById(id: String): Flow<Coin>
@@ -26,6 +29,9 @@ interface CoinDao {
 
     @Query("DELETE FROM coins")
     fun deleteAllCoins()
+
+    @Query("DELETE FROM coins WHERE id = :id")
+    fun deleteCoinById(id: String)
 
     @Upsert
     suspend fun upsertAll(coins: List<Coin>)

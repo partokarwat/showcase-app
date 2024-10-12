@@ -50,6 +50,7 @@ import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_ERROR_INITIAL_VALUE
 import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_REFRESHING_INITIAL_VALUE
 import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_TOP_GAINERS_INITIAL_VALUE
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.LIST_SIZE
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.CoinListItemSkeleton
 import com.partokarwat.showcase.ui.compose.Dimensions
@@ -116,7 +117,7 @@ fun ScreenContent(
             )
         },
     ) { contentPadding ->
-        if (!items.isNullOrEmpty()) {
+        if (!items.isNullOrEmpty() && items.size == LIST_SIZE) {
             LoadedContent(
                 contentPadding,
                 items,

@@ -21,12 +21,14 @@ class CoinListRepository
         private val dataStorePreferences: DataStore<Preferences>,
         private val coinCapApi: CoinCapApi,
     ) {
-        fun getTop100GainersCoins(): Flow<List<Coin>> = coinDao.getTop100GainersCoins()
+        fun getTopGainersCoins(amount: Int): Flow<List<Coin>> = coinDao.getTopGainersCoins(amount)
 
-        fun getTop100LoserCoins(): Flow<List<Coin>> = coinDao.getTop100LoserCoins()
+        fun getTopLoserCoins(amount: Int): Flow<List<Coin>> = coinDao.getTopLoserCoins(amount)
 
-        fun deleteAllCoins() {
-            coinDao.deleteAllCoins()
+        fun getAllCoins(): Flow<List<Coin>> = coinDao.getCoinAllCoins()
+
+        fun deleteCoinById(id: String) {
+            coinDao.deleteCoinById(id)
         }
 
         fun insertCoin(coin: Coin) {
