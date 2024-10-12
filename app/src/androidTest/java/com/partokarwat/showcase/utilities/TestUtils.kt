@@ -13,3 +13,5 @@ val testCoins =
     )
 val testCoin = Coin("solana", "Solana", "SOL", 147.98545, -4.46)
 val updatedTestCoin = Coin("binance-coin", "BNB", "BNB", 621.61, 5.30)
+
+val listSize = testCoins.size
