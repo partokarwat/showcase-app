@@ -1,9 +1,10 @@
 package com.partokarwat.showcase.ui.coindetail
 
-import com.partokarwat.showcase.data.repository.CoinDetailsRepository
+import com.partokarwat.showcase.data.remote.CoinCapApi
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertNotNull
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
@@ -13,11 +14,15 @@ class CoinDetailViewModelTest {
     @get:Rule val hiltRule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var coin: CoinDetailsRepository
+    lateinit var coinCapApi: CoinCapApi
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
 
     @Test
     fun testCoinDetailViewModel() {
-        hiltRule.inject()
-        assertNotNull(coin)
+        assertNotNull(coinCapApi)
     }
 }

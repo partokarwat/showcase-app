@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.partokarwat.showcase.HiltTestRunner"
     }
 
     buildTypes {
@@ -87,10 +87,16 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android.testing)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.app.crash.turbine)
     testImplementation(libs.assertj)
     testImplementation(libs.hilt.android.testing)
+    kspTest(libs.hilt.android.testing)
+    testImplementation(libs.androidx.runner)
+    kspTest(libs.hilt.android.compiler)
+    testImplementation(libs.androidx.junit)
 }
