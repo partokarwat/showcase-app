@@ -3,6 +3,7 @@ package com.partokarwat.showcase.data.db
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.partokarwat.showcase.utilities.listSize
 import com.partokarwat.showcase.utilities.testCoin
@@ -18,6 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class CoinDaoTest {
     private lateinit var database: AppDatabase
