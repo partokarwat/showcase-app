@@ -1,6 +1,7 @@
 package com.partokarwat.showcase.utilities
 
 import com.partokarwat.showcase.data.db.Coin
+import com.partokarwat.showcase.data.remote.Asset
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.remote.Rate
@@ -48,6 +49,21 @@ val testCoinMarketValues =
             "USDT",
         ),
     )
+
+/**
+ * [Asset] objects used for tests.
+ */
+val testAssets =
+    arrayListOf(
+        Asset("bitcoin", "Bitcoin", "BTC", "62157.5903", "-2.23"),
+        Asset("ethereum", "Ethereum", "ETH", "2510.16464", "3.57"),
+        Asset("binance-coin", "BNB", "BNB", "552.61", "-3.30"),
+    )
+
+/**
+ *  Timestamp of last coins data fetched for tests
+ */
+val timestamp = 1729016866646L
 
 /**
  * Exchange rate to euro.
