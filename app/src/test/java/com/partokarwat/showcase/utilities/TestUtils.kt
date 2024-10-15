@@ -5,6 +5,7 @@ import com.partokarwat.showcase.data.remote.Asset
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.remote.Rate
+import java.math.BigDecimal
 
 /**
  * [Coin] objects used for tests.
@@ -69,3 +70,4 @@ val timestamp = 1729016866646L
  * Exchange rate to euro.
  */
 val exchangeRate = Rate("1.0885135694101564")
+val exchangeRateEur = BigDecimal("1.0885135694101564")
