@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.runtime.livedata)
-    implementation(libs.androidx.material)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -81,7 +80,7 @@ dependencies {
     implementation(libs.retrofit2)
     implementation(libs.kotlinx.serialization.json)
 
-    // Testing
+    // Instrumentation Testing
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -89,15 +88,11 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.android.testing)
+
+    // Unit Testing
+    testImplementation(libs.androidx.arch.core.testing)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.runner)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.app.crash.turbine)
-    testImplementation(libs.assertj)
-    testImplementation(libs.androidx.runner)
-    testImplementation(libs.hilt.android.testing)
-    testImplementation(libs.hilt.android.compiler)
-    kspTest(libs.hilt.android.compiler)
-    testImplementation(libs.androidx.junit)
-    testImplementation(libs.junit.junit)
-    testImplementation(libs.junit.jupiter)
 }

@@ -18,13 +18,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,6 +28,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -151,7 +149,7 @@ fun LoadingScreen(contentPadding: PaddingValues) =
         Box(Modifier.height(50.dp).width(180.dp).background(Color.LightGray, RoundedCornerShape(33)))
     }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadedContent(
     contentPadding: PaddingValues,
@@ -162,20 +160,16 @@ fun LoadedContent(
     onCoinClick: (Coin) -> Unit = {},
     coinListViewModel: CoinListViewModel,
 ) {
-    val pullRefreshState =
-        rememberPullRefreshState(
-            refreshing = isRefreshing,
-            onRefresh = {
-                coinListViewModel.onSwipeToRefresh()
-            },
-        )
+    val pullRefreshState = rememberPullToRefreshState()
 
-    return Box(
+    return PullToRefreshBox(
+        state = pullRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = { coinListViewModel.onSwipeToRefresh() },
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(top = contentPadding.calculateTopPadding())
-                .pullRefresh(pullRefreshState),
+                .padding(top = contentPadding.calculateTopPadding()),
     ) {
         AnimatedVisibility(
             visible = items.isNotEmpty() && !isRefreshing,
@@ -184,15 +178,6 @@ fun LoadedContent(
         ) {
             CoinListScreen(items, lastListUpdateTimestamp, isTopGainers, onCoinClick, coinListViewModel)
         }
-
-        PullRefreshIndicator(
-            refreshing = isRefreshing,
-            state = pullRefreshState,
-            modifier =
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(vertical = Dimensions.spacingNormal),
-        )
     }
 }
 
