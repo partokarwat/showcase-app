@@ -1,0 +1,31 @@
+package com.partokarwat.showcase.data.repository
+
+import com.partokarwat.showcase.data.remote.CoinCapApi
+import com.partokarwat.showcase.data.remote.RateResponse
+import com.partokarwat.showcase.utilities.exchangeRate
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
+
+class ConversionRateRepositoryTest {
+    private val coinCapApi = mockk<CoinCapApi>(relaxed = true)
+    private val conversionRateRepository = mockk<ConversionRateRepository>(relaxed = true)
+
+    @Before
+    fun setup() {
+        coEvery { coinCapApi.getConversionRateToEUR() } returns RateResponse(exchangeRate)
+    }
+
+    @Test
+    fun testGetExchangeRateToEuro() =
+        runTest {
+            // When
+            val exchangeRateFromRepository = conversionRateRepository.getExchangeRateToEuro()
+
+            // Then
+            assertEquals(exchangeRateFromRepository, exchangeRate.rateUsd.toBigDecimal())
+        }
+}

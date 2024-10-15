@@ -3,6 +3,7 @@ package com.partokarwat.showcase.utilities
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
+import com.partokarwat.showcase.data.remote.Rate
 
 /**
  * [Coin] objects used for tests.
@@ -47,3 +48,8 @@ val testCoinMarketValues =
             "USDT",
         ),
     )
+
+/**
+ * Exchange rate to euro.
+ */
+val exchangeRate = Rate("1.0885135694101564")
