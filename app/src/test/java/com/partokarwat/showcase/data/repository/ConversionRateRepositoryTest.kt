@@ -12,11 +12,12 @@ import org.junit.Test
 
 class ConversionRateRepositoryTest {
     private val coinCapApi = mockk<CoinCapApi>(relaxed = true)
-    private val conversionRateRepository = mockk<ConversionRateRepository>(relaxed = true)
+    private lateinit var conversionRateRepository: ConversionRateRepository
 
     @Before
     fun setup() {
         coEvery { coinCapApi.getConversionRateToEUR() } returns RateResponse(exchangeRate)
+        conversionRateRepository = ConversionRateRepository(coinCapApi)
     }
 
     @Test

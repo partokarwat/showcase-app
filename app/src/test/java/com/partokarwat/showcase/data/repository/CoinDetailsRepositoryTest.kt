@@ -17,13 +17,14 @@ import org.junit.Test
 class CoinDetailsRepositoryTest {
     private val coinCapApi = mockk<CoinCapApi>(relaxed = true)
     private val coinDao = mockk<CoinDao>(relaxed = true)
-    private val coinDetailsRepository = mockk<CoinDetailsRepository>(relaxed = true)
+    private lateinit var coinDetailsRepository: CoinDetailsRepository
 
     @Before
     fun setup() {
         coEvery { coinDao.getCoinById(testCoin.id) } returns flow { emit(testCoin) }
         coEvery { coinCapApi.getCoinHistory(testCoin.id).data } returns testCoinHistoryValues
         coEvery { coinCapApi.getCoinMarkets(testCoin.id).data } returns testCoinMarketValues
+        coinDetailsRepository = CoinDetailsRepository(coinDao, coinCapApi)
     }
 
     @Test
