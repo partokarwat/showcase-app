@@ -1,5 +1,6 @@
 package com.partokarwat.showcase.data.repository
 
+import androidx.test.filters.SmallTest
 import com.partokarwat.showcase.data.remote.CoinCapApi
 import com.partokarwat.showcase.data.remote.RateResponse
 import com.partokarwat.showcase.utilities.exchangeRate
@@ -10,6 +11,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
+@SmallTest
 class ConversionRateRepositoryTest {
     private val coinCapApi = mockk<CoinCapApi>(relaxed = true)
     private lateinit var conversionRateRepository: ConversionRateRepository

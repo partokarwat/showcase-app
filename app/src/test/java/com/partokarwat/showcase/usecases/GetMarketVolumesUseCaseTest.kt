@@ -1,14 +1,13 @@
 package com.partokarwat.showcase.usecases
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.filters.SmallTest
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
 import com.partokarwat.showcase.utilities.MainCoroutineRule
 import com.partokarwat.showcase.utilities.RethrowingExceptionHandler
 import com.partokarwat.showcase.utilities.exchangeRateEur
 import com.partokarwat.showcase.utilities.testCoin
-import com.partokarwat.showcase.utilities.testCoinHistoryValues
+import com.partokarwat.showcase.utilities.testCoinMarketValues
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -17,8 +16,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@SmallTest
-class GetCoinHistoryUseCaseTest {
+class GetMarketVolumesUseCaseTest {
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -31,27 +29,27 @@ class GetCoinHistoryUseCaseTest {
 
     private val coinDetailsRepository = mockk<CoinDetailsRepository>(relaxed = true)
     private val conversionRateRepository = mockk<ConversionRateRepository>(relaxed = true)
-    private lateinit var getCoinHistoryUseCase: GetCoinHistoryUseCase
+    private lateinit var getMarketVolumesUseCase: GetMarketVolumesUseCase
 
     @Before
     fun setUp() {
-        coEvery { coinDetailsRepository.getCoinHistory(testCoin.id) } returns testCoinHistoryValues
+        coEvery { coinDetailsRepository.getCoinMarkets(testCoin.id) } returns testCoinMarketValues
         coEvery { conversionRateRepository.getExchangeRateToEuro() } returns exchangeRateEur
-        getCoinHistoryUseCase = GetCoinHistoryUseCase(coinDetailsRepository, conversionRateRepository)
+        getMarketVolumesUseCase = GetMarketVolumesUseCase(coinDetailsRepository, conversionRateRepository)
     }
 
     @Test
     fun `given useCase when used then the correct values are returned`() =
         runTest {
             // When
-            val coinHistory = getCoinHistoryUseCase(testCoin.id)
+            val coinMarketValues = getMarketVolumesUseCase(testCoin.id)
 
             // Then
             assertEquals(
-                coinHistory,
-                testCoinHistoryValues.onEach {
-                    it.priceUsd =
-                        it.priceUsd
+                coinMarketValues,
+                testCoinMarketValues.onEach {
+                    it.volumeUsd24Hr =
+                        it.volumeUsd24Hr
                             .toBigDecimal()
                             .div(exchangeRateEur)
                             .toString()

@@ -2,6 +2,7 @@ package com.partokarwat.showcase.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.test.filters.SmallTest
 import com.partokarwat.showcase.data.db.CoinDao
 import com.partokarwat.showcase.data.remote.AssetResponse
 import com.partokarwat.showcase.data.remote.CoinCapApi
@@ -19,6 +20,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
+@SmallTest
 class CoinListRepositoryTest {
     private val dataStorePreferences = mockk<DataStore<Preferences>>(relaxed = true)
     private val coinCapApi = mockk<CoinCapApi>(relaxed = true)

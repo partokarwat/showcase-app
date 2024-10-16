@@ -1,5 +1,6 @@
 package com.partokarwat.showcase.data.repository
 
+import androidx.test.filters.SmallTest
 import com.partokarwat.showcase.data.db.CoinDao
 import com.partokarwat.showcase.data.remote.CoinCapApi
 import com.partokarwat.showcase.utilities.testCoin
@@ -14,6 +15,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
+@SmallTest
 class CoinDetailsRepositoryTest {
     private val coinCapApi = mockk<CoinCapApi>(relaxed = true)
     private val coinDao = mockk<CoinDao>(relaxed = true)
