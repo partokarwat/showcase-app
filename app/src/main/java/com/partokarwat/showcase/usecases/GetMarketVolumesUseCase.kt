@@ -15,7 +15,7 @@ class GetMarketVolumesUseCase
     ) {
         suspend operator fun invoke(coinId: String): List<MarketValue> {
             val marketValues = coinDetailsRepository.getCoinMarkets(coinId)
-            val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
+            val exchangeRateToEUR = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
             marketValues.onEach {
                 it.volumeUsd24Hr =
                     it.volumeUsd24Hr

@@ -11,10 +11,11 @@ class ConversionRateRepository
     constructor(
         private val coinCapApi: CoinCapApi,
     ) {
-        suspend fun getExchangeRateToEuro(): BigDecimal =
-            coinCapApi
-                .getConversionRateToEUR()
-                .data
-                .rateUsd
-                .toBigDecimal()
+        suspend fun getExchangeUsdToEuroRate(): Result<BigDecimal> =
+            try {
+                val response = coinCapApi.getUsdConversionRateToEUR()
+                Result.success(BigDecimal(response.data.rateUsd))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
     }

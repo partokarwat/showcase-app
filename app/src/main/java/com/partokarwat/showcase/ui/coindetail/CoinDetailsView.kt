@@ -2,6 +2,9 @@ package com.partokarwat.showcase.ui.coindetail
 
 import android.app.Activity
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -60,7 +63,7 @@ fun CoinDetailsScreen(
             CoinDetailsTopBar(coin, onBackClick)
         },
     ) { contentPadding ->
-        CoinDetailsContent(contentPadding, coinHistory, coin, coinMarkets, isInitError)
+        CoinDetailsContent(contentPadding, coinHistory, coin, coinMarkets)
         if (isInitError) {
             Toast
                 .makeText(
@@ -103,7 +106,6 @@ private fun CoinDetailsContent(
     coinHistory: List<HistoryValue>?,
     coin: Coin?,
     coinMarkets: List<MarketValue>?,
-    isInitError: Boolean,
 ) {
     Column(
         Modifier
@@ -127,10 +129,23 @@ private fun CoinDetailsContent(
         if (coin != null) {
             CoinListItem(coin, Modifier.padding(bottom = Dimensions.spacingNormal), {})
         }
+        MarketValuesSection(coinMarkets)
+    }
+}
+
+@Composable
+private fun MarketValuesSection(coinMarkets: List<MarketValue>?) {
+    AnimatedVisibility(
+        visible = !coinMarkets.isNullOrEmpty(),
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
         if (!coinMarkets.isNullOrEmpty()) {
-            MarketValueListHeader()
-            for (marketValue in coinMarkets) {
-                MarketValueListItem(marketValue)
+            Column {
+                MarketValueListHeader()
+                for (marketValue in coinMarkets) {
+                    MarketValueListItem(marketValue)
+                }
             }
         }
     }
@@ -193,7 +208,7 @@ private fun HistoryGraphTimeRangeLabel() {
         enabled = false,
         label = {
             ShowcaseText(
-                stringResource(R.string.coin_histroy_graph_label),
+                stringResource(R.string.coin_history_graph_label),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Light,
             )

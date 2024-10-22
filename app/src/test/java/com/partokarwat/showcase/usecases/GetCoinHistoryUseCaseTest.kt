@@ -36,7 +36,7 @@ class GetCoinHistoryUseCaseTest {
     @Before
     fun setUp() {
         coEvery { coinDetailsRepository.getCoinHistory(testCoin.id) } returns testCoinHistoryValues
-        coEvery { conversionRateRepository.getExchangeRateToEuro() } returns exchangeRateEur
+        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.success(exchangeRateEur)
         getCoinHistoryUseCase = GetCoinHistoryUseCase(coinDetailsRepository, conversionRateRepository)
     }
 

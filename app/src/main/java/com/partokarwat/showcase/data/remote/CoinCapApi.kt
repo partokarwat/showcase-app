@@ -21,5 +21,5 @@ interface CoinCapApi {
     ): CoinMarketsResponse
 
     @GET("rates/euro")
-    suspend fun getConversionRateToEUR(): RateResponse
+    suspend fun getUsdConversionRateToEUR(): RateResponse
 }

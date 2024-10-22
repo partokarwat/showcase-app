@@ -15,7 +15,7 @@ class GetCoinHistoryUseCase
     ) {
         suspend operator fun invoke(coinId: String): List<HistoryValue> {
             val historyValues = coinDetailsRepository.getCoinHistory(coinId)
-            val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
+            val exchangeRateToEUR = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
             historyValues.onEach {
                 it.priceUsd =
                     it.priceUsd

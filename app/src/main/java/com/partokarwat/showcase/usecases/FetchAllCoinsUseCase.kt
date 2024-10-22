@@ -25,7 +25,7 @@ class FetchAllCoinsUseCase
                 allAssetsFromApi.filter {
                     it.changePercent24Hr != null
                 }
-            val exchangeRateToEUR = conversionRateRepository.getExchangeRateToEuro()
+            val exchangeRateToEUR = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
             deleteNoMoreProvidedCoinsFromDatabase(assetsWithChangePercent24Hr)
             insertNewCoinsAndUpdateOldCoins(assetsWithChangePercent24Hr, exchangeRateToEUR)
         }

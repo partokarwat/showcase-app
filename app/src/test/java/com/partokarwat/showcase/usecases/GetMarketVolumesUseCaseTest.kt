@@ -34,7 +34,7 @@ class GetMarketVolumesUseCaseTest {
     @Before
     fun setUp() {
         coEvery { coinDetailsRepository.getCoinMarkets(testCoin.id) } returns testCoinMarketValues
-        coEvery { conversionRateRepository.getExchangeRateToEuro() } returns exchangeRateEur
+        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.success(exchangeRateEur)
         getMarketVolumesUseCase = GetMarketVolumesUseCase(coinDetailsRepository, conversionRateRepository)
     }
 

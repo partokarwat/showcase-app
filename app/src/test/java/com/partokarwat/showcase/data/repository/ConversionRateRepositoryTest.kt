@@ -18,15 +18,15 @@ class ConversionRateRepositoryTest {
 
     @Before
     fun setup() {
-        coEvery { coinCapApi.getConversionRateToEUR() } returns RateResponse(exchangeRate)
+        coEvery { coinCapApi.getUsdConversionRateToEUR() } returns RateResponse(exchangeRate)
         conversionRateRepository = ConversionRateRepository(coinCapApi)
     }
 
     @Test
-    fun testGetExchangeRateToEuro() =
+    fun testGetExchangeUsdToEuroRate() =
         runTest {
             // When
-            val exchangeRateFromRepository = conversionRateRepository.getExchangeRateToEuro()
+            val exchangeRateFromRepository = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
 
             // Then
             assertEquals(exchangeRateFromRepository, exchangeRate.rateUsd.toBigDecimal())
