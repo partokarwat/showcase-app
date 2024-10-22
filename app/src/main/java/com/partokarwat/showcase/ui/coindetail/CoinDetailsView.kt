@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import com.partokarwat.showcase.data.util.Result
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +42,7 @@ import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
+import com.partokarwat.showcase.data.util.Result
 import com.partokarwat.showcase.ui.base.use
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
@@ -149,7 +149,7 @@ private fun CoinDetailsContent(
             .verticalScroll(rememberScrollState()),
     ) {
         if (!coinHistory.isNullOrEmpty()) {
-            CoinHistroyGraph(coinHistory)
+            CoinHistoryGraph(coinHistory)
         } else {
             Box(
                 Modifier
@@ -203,7 +203,7 @@ private fun MarketValueListHeader() {
 }
 
 @Composable
-private fun CoinHistroyGraph(coinHistory: List<HistoryValue>) {
+private fun CoinHistoryGraph(coinHistory: List<HistoryValue>) {
     Box(modifier = Modifier.padding(horizontal = Dimensions.spacingNormal)) {
         HistoryGraphTimeRangeLabel()
         Canvas(
@@ -258,30 +258,34 @@ private fun CoinDetailsScreenPreview() {
     ScreenContent(
         State(
             Coin("bitcoin", "Bitcoin", "BTC", 62157.5903, -2.23),
-            Result.Success(arrayListOf(
-                HistoryValue("26781.2977671380416781", 1697068800000, "2023-10-12T00:00:00.000Z"),
-                HistoryValue("26829.7786353395618383", 1697155200000, "2023-10-13T00:00:00.000Z"),
-                HistoryValue("26905.3950924400433811", 1697241600000, "2023-10-14T00:00:00.000Z"),
-            )),
-            Result.Success(arrayListOf(
-                MarketValue(
-                    "Crypto.com Exchange",
-                    "1694772140.4867703284109239",
-                    "62267.6968255180129234",
-                    "9.9963669941719350",
-                    "BTC",
-                    "USDT",
+            Result.Success(
+                arrayListOf(
+                    HistoryValue("26781.2977671380416781", 1697068800000, "2023-10-12T00:00:00.000Z"),
+                    HistoryValue("26829.7786353395618383", 1697155200000, "2023-10-13T00:00:00.000Z"),
+                    HistoryValue("26905.3950924400433811", 1697241600000, "2023-10-14T00:00:00.000Z"),
                 ),
-                MarketValue(
-                    "Binance",
-                    "1329954436.7461967692016879",
-                    "62262.8289498239104600",
-                    "7.8445428253403535",
-                    "BTC",
-                    "USDT",
+            ),
+            Result.Success(
+                arrayListOf(
+                    MarketValue(
+                        "Crypto.com Exchange",
+                        "1694772140.4867703284109239",
+                        "62267.6968255180129234",
+                        "9.9963669941719350",
+                        "BTC",
+                        "USDT",
+                    ),
+                    MarketValue(
+                        "Binance",
+                        "1329954436.7461967692016879",
+                        "62262.8289498239104600",
+                        "7.8445428253403535",
+                        "BTC",
+                        "USDT",
+                    ),
                 ),
-            ))
+            ),
         ),
-        {}
+        {},
     )
 }
