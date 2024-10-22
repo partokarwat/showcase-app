@@ -16,7 +16,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class GetMarketVolumesUseCaseTest {
+class GetCoinMarketVolumesUseCaseTest {
     @Rule
     @JvmField
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -29,20 +29,20 @@ class GetMarketVolumesUseCaseTest {
 
     private val coinDetailsRepository = mockk<CoinDetailsRepository>(relaxed = true)
     private val conversionRateRepository = mockk<ConversionRateRepository>(relaxed = true)
-    private lateinit var getMarketVolumesUseCase: GetMarketVolumesUseCase
+    private lateinit var getCoinMarketVolumesUseCase: GetCoinMarketVolumesUseCase
 
     @Before
     fun setUp() {
         coEvery { coinDetailsRepository.getCoinMarkets(testCoin.id) } returns testCoinMarketValues
         coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.success(exchangeRateEur)
-        getMarketVolumesUseCase = GetMarketVolumesUseCase(coinDetailsRepository, conversionRateRepository)
+        getCoinMarketVolumesUseCase = GetCoinMarketVolumesUseCase(coinDetailsRepository, conversionRateRepository)
     }
 
     @Test
     fun `given useCase when used then the correct values are returned`() =
         runTest {
             // When
-            val coinMarketValues = getMarketVolumesUseCase(testCoin.id)
+            val coinMarketValues = getCoinMarketVolumesUseCase(testCoin.id)
 
             // Then
             assertEquals(

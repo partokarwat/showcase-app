@@ -2,16 +2,19 @@ package com.partokarwat.showcase.ui.coindetail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.filters.SmallTest
+import app.cash.turbine.test
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
+import com.partokarwat.showcase.data.util.Result
+import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
 import com.partokarwat.showcase.usecases.GetCoinHistoryUseCase
-import com.partokarwat.showcase.usecases.GetMarketVolumesUseCase
+import com.partokarwat.showcase.usecases.GetCoinMarketVolumesUseCase
 import com.partokarwat.showcase.utilities.MainCoroutineRule
 import com.partokarwat.showcase.utilities.testCoin
 import com.partokarwat.showcase.utilities.testCoinHistoryValues
 import com.partokarwat.showcase.utilities.testCoinMarketValues
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -25,7 +28,7 @@ class CoinDetailViewModelTest {
 
     private val coinDetailsRepository = mockk<CoinDetailsRepository>(relaxed = true)
     private val getCoinHistoryUseCase = mockk<GetCoinHistoryUseCase>(relaxed = true)
-    private val getMarketVolumesUseCase = mockk<GetMarketVolumesUseCase>(relaxed = true)
+    private val getCoinMarketVolumesUseCase = mockk<GetCoinMarketVolumesUseCase>(relaxed = true)
     private lateinit var viewModel: CoinDetailViewModel
 
     @Before
@@ -36,23 +39,34 @@ class CoinDetailViewModelTest {
             }
         coEvery {
             getCoinHistoryUseCase(testCoin.id)
-        } returns testCoinHistoryValues
+        } returns Result.Success(testCoinHistoryValues)
         coEvery {
-            getMarketVolumesUseCase(testCoin.id)
-        } returns testCoinMarketValues
+            getCoinMarketVolumesUseCase(testCoin.id)
+        } returns Result.Success(testCoinMarketValues)
+        coEvery {
+            coinDetailsRepository.getCoinById(testCoin.id)
+        } returns flow { emit(testCoin) }
         viewModel =
             CoinDetailViewModel(
                 savedStateHandle,
                 coinDetailsRepository,
                 getCoinHistoryUseCase,
-                getMarketVolumesUseCase,
+                getCoinMarketVolumesUseCase,
             )
     }
 
     @Test
     fun `given viewModel when initialised then values are loaded correctly`() =
         runTest {
-            assertEquals(viewModel.coinHistory.first(), testCoinHistoryValues)
-            assertEquals(viewModel.coinMarkets.first(), testCoinMarketValues)
+            viewModel.state.test {
+                // when
+                skipItems(1)
+                viewModel.intent(Intent.ScreenCreated)
+
+                // then
+                val state = awaitItem()
+                assertEquals(state.history, Result.Success(testCoinHistoryValues))
+                assertEquals(state.markets, Result.Success(testCoinMarketValues))
+            }
         }
 }

@@ -27,6 +27,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,16 +37,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
+import com.partokarwat.showcase.ui.base.use
+import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
+import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
+import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.State
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.MarketValueListItem
 import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun CoinDetailsScreen(
@@ -53,26 +59,54 @@ fun CoinDetailsScreen(
     onBackClick: () -> Unit,
     coinDetailsViewModel: CoinDetailViewModel = hiltViewModel(),
 ) {
-    val coin = coinDetailsViewModel.coin.collectAsStateWithLifecycle(null).value
-    val coinHistory = coinDetailsViewModel.coinHistory.collectAsStateWithLifecycle(null).value
-    val coinMarkets = coinDetailsViewModel.coinMarkets.collectAsStateWithLifecycle(null).value
-    val isInitError = coinDetailsViewModel.isInitError.collectAsStateWithLifecycle(false).value
+    val (state, intents, events) = use(viewModel = coinDetailsViewModel)
 
+    Initializer(activity, intents, events)
+    ScreenContent(state, onBackClick)
+}
+
+@Composable
+private fun Initializer(
+    activity: Activity,
+    intents: (Intent) -> Unit,
+    events: SharedFlow<Event>,
+) {
+    LaunchedEffect(Unit) {
+        collectEvents(activity, events)
+    }
+    LaunchedEffect(Unit) {
+        intents(Intent.ScreenCreated)
+    }
+}
+
+private suspend fun collectEvents(
+    activity: Activity,
+    events: SharedFlow<Event>,
+) {
+    events.collectLatest {
+        when (it) {
+            is Event.ShowError ->
+                Toast
+                    .makeText(
+                        activity,
+                        activity.getString(it.messageResId),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+        }
+    }
+}
+
+@Composable
+fun ScreenContent(
+    state: State,
+    onBackClick: () -> Unit,
+) {
     Scaffold(
         topBar = {
-            CoinDetailsTopBar(coin, onBackClick)
+            CoinDetailsTopBar(state.coin, onBackClick)
         },
     ) { contentPadding ->
-        CoinDetailsContent(contentPadding, coinHistory, coin, coinMarkets)
-        if (isInitError) {
-            Toast
-                .makeText(
-                    activity,
-                    activity.getString(R.string.init_coin_details_error_text),
-                    Toast.LENGTH_LONG,
-                ).show()
-            coinDetailsViewModel.resetInitError()
-        }
+        CoinDetailsContent(contentPadding, state.history.getOrNull(), state.coin, state.markets.getOrNull())
     }
 }
 
