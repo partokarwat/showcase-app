@@ -3,17 +3,18 @@ package com.partokarwat.showcase.usecases
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
+import com.partokarwat.showcase.data.util.Result
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetMarketVolumesUseCase
+class GetCoinMarketVolumesUseCase
     @Inject
     constructor(
         private val coinDetailsRepository: CoinDetailsRepository,
         private val conversionRateRepository: ConversionRateRepository,
     ) {
-        suspend operator fun invoke(coinId: String): List<MarketValue> {
+        suspend operator fun invoke(coinId: String): Result<List<MarketValue>> {
             val marketValues = coinDetailsRepository.getCoinMarkets(coinId)
             val exchangeRateToEUR = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
             marketValues.onEach {
@@ -23,6 +24,6 @@ class GetMarketVolumesUseCase
                         .div(exchangeRateToEUR)
                         .toString()
             }
-            return marketValues
+            return Result.Success(marketValues)
         }
     }

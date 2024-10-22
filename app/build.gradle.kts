@@ -95,4 +95,5 @@ dependencies {
     testImplementation(libs.androidx.runner)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.app.crash.turbine)
 }

@@ -3,6 +3,7 @@ package com.partokarwat.showcase.usecases
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
+import com.partokarwat.showcase.data.util.Result
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -13,7 +14,7 @@ class GetCoinHistoryUseCase
         private val coinDetailsRepository: CoinDetailsRepository,
         private val conversionRateRepository: ConversionRateRepository,
     ) {
-        suspend operator fun invoke(coinId: String): List<HistoryValue> {
+        suspend operator fun invoke(coinId: String): Result<List<HistoryValue>> {
             val historyValues = coinDetailsRepository.getCoinHistory(coinId)
             val exchangeRateToEUR = conversionRateRepository.getExchangeUsdToEuroRate().getOrThrow()
             historyValues.onEach {
@@ -23,6 +24,6 @@ class GetCoinHistoryUseCase
                         .div(exchangeRateToEUR)
                         .toString()
             }
-            return historyValues
+            return Result.Success(historyValues)
         }
     }
