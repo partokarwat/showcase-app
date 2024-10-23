@@ -78,7 +78,7 @@ class CoinListViewModel
             }
         }
 
-        fun switchCoinListByPerformance() {
+        fun toggleCoinListOrder() {
             viewModelScope.launch {
                 try {
                     _isTopGainers.emit(!_isTopGainers.value)

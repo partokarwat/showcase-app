@@ -261,7 +261,7 @@ private fun ToggleAssetsByPerformanceButton(
                 )
             }
         },
-        onClick = { coinListViewModel.switchCoinListByPerformance() },
+        onClick = { coinListViewModel.toggleCoinListOrder() },
     )
 }
 

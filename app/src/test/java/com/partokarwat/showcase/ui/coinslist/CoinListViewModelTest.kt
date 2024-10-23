@@ -69,7 +69,7 @@ class CoinListViewModelTest {
         runTest {
             val initialValue = viewModel.isTopGainers.first()
             assertEquals(initialValue, true)
-            viewModel.switchCoinListByPerformance()
+            viewModel.toggleCoinListOrder()
             val valueAfterRefresh = viewModel.isTopGainers.drop(1).first()
             assertEquals(valueAfterRefresh, false)
         }
