@@ -65,6 +65,7 @@ class CoinDetailViewModelTest {
 
                 // then
                 val state = awaitItem()
+                assertEquals(state.coin, testCoin)
                 assertEquals(state.history, Result.Success(testCoinHistoryValues))
                 assertEquals(state.markets, Result.Success(testCoinMarketValues))
             }
