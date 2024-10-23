@@ -1,5 +1,6 @@
 package com.partokarwat.showcase.ui.coinslist
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -55,7 +56,7 @@ class CoinListViewModel
                         fetchAllCoinsUseCase()
                     } catch (e: Exception) {
                         _isError.emit(Pair(true, R.string.loading_data_from_network_error_text))
-                        e.printStackTrace()
+                        Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                     }
                 }
             }
@@ -72,7 +73,7 @@ class CoinListViewModel
                 } catch (e: Exception) {
                     _isError.value = Pair(true, R.string.pull_to_refresh_error_text)
                     _isRefreshing.value = false
-                    e.printStackTrace()
+                    Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                 }
             }
         }
@@ -83,7 +84,7 @@ class CoinListViewModel
                     _isTopGainers.emit(!_isTopGainers.value)
                 } catch (e: Exception) {
                     _isError.value = Pair(true, R.string.technical_error_text)
-                    e.printStackTrace()
+                    Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                 }
             }
         }
