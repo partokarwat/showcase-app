@@ -11,7 +11,7 @@
     <string name="technical_error_text">Your action could not be completed. Please try again later.</string>
     <string name="network_error_text">Please check your internet connection.</string>
     <string name="unknown_error_text">Something went wrong. Please try again later.</string>
-    <string name="init_coin_details_error_text">Historical data and Market volumes loading failed.</string>
+    <string name="http_error_text">Loading data failed. Please try again later.</string>">
     <string name="loading_data_from_network_error_text">Data update failed. Try again with pull to refresh.</string>
     <string name="loading_data_from_database_error_text">Offline data loading failed. Please try again later.</string>
     <string name="pull_to_refresh_error_text">Pull to refresh failed. Try again later.</string>
