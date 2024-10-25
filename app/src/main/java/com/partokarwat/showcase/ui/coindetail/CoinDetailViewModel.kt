@@ -1,5 +1,6 @@
 package com.partokarwat.showcase.ui.coindetail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -92,6 +93,7 @@ class CoinDetailViewModel
         }
 
         private suspend fun showError(exception: Throwable?) {
+            Log.e(CoinDetailViewModel::class.java.simpleName, "Error: ", exception)
             when (exception) {
                 is HttpException -> _event.emit(Event.ShowError(R.string.init_coin_details_error_text))
                 is IOException -> _event.emit(Event.ShowError(R.string.network_error_text))
