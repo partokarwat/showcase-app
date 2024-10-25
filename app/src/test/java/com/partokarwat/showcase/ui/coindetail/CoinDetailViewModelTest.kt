@@ -5,6 +5,7 @@ import androidx.test.filters.SmallTest
 import app.cash.turbine.test
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.util.Result
+import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
 import com.partokarwat.showcase.usecases.GetCoinHistoryUseCase
 import com.partokarwat.showcase.usecases.GetCoinMarketVolumesUseCase
@@ -16,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
+import okio.IOException
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -70,4 +72,46 @@ class CoinDetailViewModelTest {
                 assertEquals(state.markets, Result.Success(testCoinMarketValues))
             }
         }
+
+    @Test
+    fun `given viewModel when coin history loading fails then error is displayed and market values are still loaded`() {
+        runTest {
+            viewModel.event.test {
+                // given
+                coEvery {
+                    getCoinHistoryUseCase(testCoin.id)
+                } throws IOException("Network error")
+
+                // when
+                viewModel.intent(Intent.ScreenCreated)
+
+                // then
+                val event = this.awaitItem()
+                assertTrue(event is Event.ShowError)
+                assertTrue(viewModel.state.value.history.isError)
+                assertEquals(viewModel.state.value.markets, Result.Success(testCoinMarketValues))
+            }
+        }
+    }
+
+    @Test
+    fun `given viewModel when coin market volumes loading fails then error is displayed and history is still loaded`() {
+        runTest {
+            viewModel.event.test {
+                // given
+                coEvery {
+                    getCoinMarketVolumesUseCase(testCoin.id)
+                } throws IOException("Network error")
+
+                // when
+                viewModel.intent(Intent.ScreenCreated)
+
+                // then
+                val event = this.awaitItem()
+                assertTrue(event is Event.ShowError)
+                assertEquals(viewModel.state.value.history, Result.Success(testCoinHistoryValues))
+                assertTrue(viewModel.state.value.markets.isError)
+            }
+        }
+    }
 }

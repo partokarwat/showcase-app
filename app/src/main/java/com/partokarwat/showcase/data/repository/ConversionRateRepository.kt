@@ -1,6 +1,7 @@
 package com.partokarwat.showcase.data.repository
 
 import com.partokarwat.showcase.data.remote.CoinCapApi
+import com.partokarwat.showcase.data.util.Result
 import java.math.BigDecimal
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,8 +15,8 @@ class ConversionRateRepository
         suspend fun getExchangeUsdToEuroRate(): Result<BigDecimal> =
             try {
                 val response = coinCapApi.getUsdConversionRateToEUR()
-                Result.success(BigDecimal(response.data.rateUsd))
+                Result.Success(BigDecimal(response.data.rateUsd))
             } catch (e: Exception) {
-                Result.failure(e)
+                Result.Error(e)
             }
     }

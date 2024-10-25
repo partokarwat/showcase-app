@@ -65,24 +65,33 @@ class CoinDetailViewModel
         private fun loadCoinDetailsFromApi() {
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
-                    try {
-                        val coinHistoryResult = getCoinHistoryUseCase(coinId)
-                        val coinMarketsResult = getCoinMarketVolumesUseCase(coinId)
-
-                        _state.value =
-                            _state.value.copy(
-                                history = coinHistoryResult,
-                                markets = coinMarketsResult,
-                            )
-                    } catch (e: Exception) {
-                        handleError(e)
+                    val coinHistoryResult =
+                        try {
+                            getCoinHistoryUseCase(coinId)
+                        } catch (e: Exception) {
+                            Result.Error(e)
+                        }
+                    val coinMarketsResult =
+                        try {
+                            getCoinMarketVolumesUseCase(coinId)
+                        } catch (e: Exception) {
+                            Result.Error(e)
+                        }
+                    if (coinMarketsResult is Result.Error) {
+                        showError(coinMarketsResult.getErrorOrNull())
+                    } else if (coinHistoryResult is Result.Error) {
+                        showError(coinHistoryResult.getErrorOrNull())
                     }
+                    _state.value =
+                        _state.value.copy(
+                            history = coinHistoryResult,
+                            markets = coinMarketsResult,
+                        )
                 }
             }
         }
 
-        private suspend fun handleError(exception: Exception) {
-            _state.value = _state.value.copy(history = Result.Error(exception), markets = Result.Error(exception))
+        private suspend fun showError(exception: Throwable?) {
             when (exception) {
                 is HttpException -> _event.emit(Event.ShowError(R.string.init_coin_details_error_text))
                 is IOException -> _event.emit(Event.ShowError(R.string.network_error_text))

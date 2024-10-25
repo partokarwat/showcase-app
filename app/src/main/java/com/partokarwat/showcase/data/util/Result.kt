@@ -23,6 +23,13 @@ sealed interface Result<out T> {
             is Loading, is Success -> null
         }
 
+    fun getOrThrow(): T =
+        when (this) {
+            is Error -> throw this.exception
+            is Loading -> throw IllegalStateException("Result is loading")
+            is Success -> data
+        }
+
     val isError: Boolean
         get() = this is Error
 }

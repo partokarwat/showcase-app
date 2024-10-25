@@ -3,6 +3,7 @@ package com.partokarwat.showcase.usecases
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
+import com.partokarwat.showcase.data.util.Result
 import com.partokarwat.showcase.utilities.MainCoroutineRule
 import com.partokarwat.showcase.utilities.RethrowingExceptionHandler
 import com.partokarwat.showcase.utilities.exchangeRateEur
@@ -34,7 +35,7 @@ class GetCoinMarketVolumesUseCaseTest {
     @Before
     fun setUp() {
         coEvery { coinDetailsRepository.getCoinMarkets(testCoin.id) } returns testCoinMarketValues
-        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.success(exchangeRateEur)
+        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.Success(exchangeRateEur)
         getCoinMarketVolumesUseCase = GetCoinMarketVolumesUseCase(coinDetailsRepository, conversionRateRepository)
     }
 

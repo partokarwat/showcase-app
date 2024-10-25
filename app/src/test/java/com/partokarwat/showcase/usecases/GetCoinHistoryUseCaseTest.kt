@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.filters.SmallTest
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.repository.ConversionRateRepository
+import com.partokarwat.showcase.data.util.Result
 import com.partokarwat.showcase.utilities.MainCoroutineRule
 import com.partokarwat.showcase.utilities.RethrowingExceptionHandler
 import com.partokarwat.showcase.utilities.exchangeRateEur
@@ -36,7 +37,7 @@ class GetCoinHistoryUseCaseTest {
     @Before
     fun setUp() {
         coEvery { coinDetailsRepository.getCoinHistory(testCoin.id) } returns testCoinHistoryValues
-        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.success(exchangeRateEur)
+        coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.Success(exchangeRateEur)
         getCoinHistoryUseCase = GetCoinHistoryUseCase(coinDetailsRepository, conversionRateRepository)
     }
 
