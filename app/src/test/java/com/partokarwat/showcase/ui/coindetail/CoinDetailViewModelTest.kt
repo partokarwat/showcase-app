@@ -88,6 +88,7 @@ class CoinDetailViewModelTest {
                 // then
                 val event = this.awaitItem()
                 assertTrue(event is Event.ShowError)
+                expectNoEvents()
                 assertTrue(viewModel.state.value.history.isError)
                 assertEquals(viewModel.state.value.markets, Result.Success(testCoinMarketValues))
             }
@@ -109,7 +110,33 @@ class CoinDetailViewModelTest {
                 // then
                 val event = this.awaitItem()
                 assertTrue(event is Event.ShowError)
+                expectNoEvents()
                 assertEquals(viewModel.state.value.history, Result.Success(testCoinHistoryValues))
+                assertTrue(viewModel.state.value.markets.isError)
+            }
+        }
+    }
+
+    @Test
+    fun `given viewModel when coin market volumes and coin history loading fail then error is displayed only once`() {
+        runTest {
+            viewModel.event.test {
+                // given
+                coEvery {
+                    getCoinMarketVolumesUseCase(testCoin.id)
+                } throws IOException("Network error")
+                coEvery {
+                    getCoinHistoryUseCase(testCoin.id)
+                } throws IOException("Network error")
+
+                // when
+                viewModel.intent(Intent.ScreenCreated)
+
+                // then
+                val event = this.awaitItem()
+                assertTrue(event is Event.ShowError)
+                expectNoEvents()
+                assertTrue(viewModel.state.value.history.isError)
                 assertTrue(viewModel.state.value.markets.isError)
             }
         }
