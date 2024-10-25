@@ -4,16 +4,16 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.util.Result
-import com.partokarwat.showcase.ui.base.UniDirectionalViewModelContract
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.State
+import com.partokarwat.showcase.ui.common.UniDirectionalViewModelContract
+import com.partokarwat.showcase.ui.common.getErrorStringRes
 import com.partokarwat.showcase.usecases.GetCoinHistoryUseCase
 import com.partokarwat.showcase.usecases.GetCoinMarketVolumesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +25,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 const val COIN_ID_SAVED_STATE_KEY = "coinId"
@@ -94,11 +92,7 @@ class CoinDetailViewModel
 
         private suspend fun showError(exception: Throwable?) {
             Log.e(CoinDetailViewModel::class.java.simpleName, "Error: ", exception)
-            when (exception) {
-                is HttpException -> _event.emit(Event.ShowError(R.string.init_coin_details_error_text))
-                is IOException -> _event.emit(Event.ShowError(R.string.network_error_text))
-                else -> _event.emit(Event.ShowError(R.string.unknown_error_text))
-            }
+            _event.emit(Event.ShowError(getErrorStringRes(exception)))
         }
     }
 

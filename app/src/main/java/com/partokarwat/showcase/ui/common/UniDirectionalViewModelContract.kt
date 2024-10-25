@@ -1,4 +1,4 @@
-package com.partokarwat.showcase.ui.base
+package com.partokarwat.showcase.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

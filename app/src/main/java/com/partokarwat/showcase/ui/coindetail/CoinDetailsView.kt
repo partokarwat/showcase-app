@@ -43,10 +43,10 @@ import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.util.Result
-import com.partokarwat.showcase.ui.base.use
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
 import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.State
+import com.partokarwat.showcase.ui.common.use
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.MarketValueListItem
