@@ -54,6 +54,7 @@ import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import java.math.BigDecimal
 
 @Composable
 fun CoinDetailsScreen(
@@ -216,8 +217,8 @@ private fun CoinHistoryGraph(coinHistory: List<HistoryValue>) {
             val canvasWidth = size.width
             val canvasHeight = size.height
             val horizontalStep = canvasWidth / coinHistory.size
-            val maxValue = coinHistory.maxBy { it.priceUsd }.priceUsd.toBigDecimal()
-            val minValue = coinHistory.minBy { it.priceUsd }.priceUsd.toBigDecimal()
+            val maxValue = coinHistory.maxByOrNull { it.priceUsd.toBigDecimal() }?.priceUsd?.toBigDecimal() ?: BigDecimal.ZERO
+            val minValue = coinHistory.minByOrNull { it.priceUsd.toBigDecimal() }?.priceUsd?.toBigDecimal() ?: BigDecimal.ZERO
             val maximumOffset = maxValue - minValue
             val path = Path()
             val yFirstPointOffset = (maxValue - coinHistory.first().priceUsd.toBigDecimal()) / maximumOffset
