@@ -96,4 +96,5 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.app.crash.turbine)
+    testImplementation(libs.junit.jupiter)
 }
