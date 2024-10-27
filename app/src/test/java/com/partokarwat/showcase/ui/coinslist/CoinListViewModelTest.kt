@@ -2,17 +2,13 @@ package com.partokarwat.showcase.ui.coinslist
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.filters.SmallTest
+import app.cash.turbine.test
 import com.partokarwat.showcase.data.repository.CoinListRepository
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Intent
 import com.partokarwat.showcase.usecases.FetchAllCoinsUseCase
 import com.partokarwat.showcase.utilities.MainCoroutineRule
-import com.partokarwat.showcase.utilities.getOrAwaitValue
-import com.partokarwat.showcase.utilities.observeForTesting
 import io.mockk.mockk
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -41,36 +37,37 @@ class CoinListViewModelTest {
     }
 
     @Test
-    fun `given viewModel when swipe to refresh is started then isRefreshing changes to true`() =
+    fun `given viewModel when swipe to refresh is started then isRefreshing is updated accordingly`() =
         runTest {
-            val initialValue = viewModel.isRefreshing.getOrAwaitValue()
-            assertEquals(initialValue, false)
-            viewModel.onSwipeToRefresh()
-            viewModel.isRefreshing.observeForTesting {
-                yield()
-                val valueIsRefreshing = viewModel.isRefreshing.value
-                assertEquals(valueIsRefreshing, true)
-                runCurrent()
-            }
-        }
+            viewModel.state.test {
+                // given
+                val initialValue = awaitItem().isRefreshing
 
-    @Test
-    fun `given viewModel when swipe to refresh is fully performed then isRefreshing is false after refresh`() =
-        runTest {
-            val initialValue = viewModel.isRefreshing.getOrAwaitValue()
-            assertEquals(initialValue, false)
-            viewModel.onSwipeToRefresh()
-            val valueAfterRefresh = viewModel.isRefreshing.getOrAwaitValue()
-            assertEquals(valueAfterRefresh, false)
+                // when
+                viewModel.intent(Intent.OnSwipeToRefresh)
+                val refreshingValue = awaitItem().isRefreshing
+                val finishedValue = awaitItem().isRefreshing
+
+                // then
+                assertEquals(refreshingValue, true)
+                assertEquals(initialValue, finishedValue)
+            }
         }
 
     @Test
     fun `given viewModel when switchCoinListByPerformance then isGainers is toggled`() =
         runTest {
-            val initialValue = viewModel.isTopGainers.first()
-            assertEquals(initialValue, true)
-            viewModel.toggleCoinListOrder()
-            val valueAfterRefresh = viewModel.isTopGainers.drop(1).first()
-            assertEquals(valueAfterRefresh, false)
+            viewModel.state.test {
+                // given
+                val initialValue = awaitItem().isTopGainers
+
+                // when
+                viewModel.intent(Intent.ToggleCoinListOrder)
+                val updatedValue = awaitItem().isTopGainers
+
+                // then
+                assertEquals(initialValue, true)
+                assertEquals(updatedValue, false)
+            }
         }
 }
