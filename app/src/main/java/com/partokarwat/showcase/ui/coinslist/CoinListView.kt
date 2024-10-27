@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,18 +43,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.MutableLiveData
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
-import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_ERROR_INITIAL_VALUE
-import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_REFRESHING_INITIAL_VALUE
-import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.IS_TOP_GAINERS_INITIAL_VALUE
-import com.partokarwat.showcase.ui.coinslist.CoinListViewModel.Companion.LIST_SIZE
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Event
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Intent
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.State
+import com.partokarwat.showcase.ui.common.use
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.CoinListItemSkeleton
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -64,45 +67,50 @@ fun CoinListScreen(
     onCoinClick: (Coin) -> Unit = {},
     coinListViewModel: CoinListViewModel = hiltViewModel(),
 ) {
-    val items = coinListViewModel.items.observeAsState().value
-    val lastListUpdateTimestamp = coinListViewModel.lastListUpdateTimestamp.observeAsState().value
-    val isError = coinListViewModel.isError.collectAsStateWithLifecycle(IS_ERROR_INITIAL_VALUE).value
-    val isRefreshing = coinListViewModel.isRefreshing.observeAsState().value
-    val isTopGainers =
-        coinListViewModel.isTopGainers
-            .collectAsStateWithLifecycle(
-                IS_TOP_GAINERS_INITIAL_VALUE,
-            ).value
+    val (state, intents, events) = use(viewModel = coinListViewModel)
 
-    ScreenContent(
-        items,
-        lastListUpdateTimestamp,
-        isRefreshing ?: IS_REFRESHING_INITIAL_VALUE,
-        isTopGainers,
-        onCoinClick,
-        coinListViewModel,
-    )
-    if (isError.first) {
-        Toast
-            .makeText(
-                activity,
-                activity.getString(isError.second),
-                Toast.LENGTH_LONG,
-            ).show()
-        coinListViewModel.resetIsError()
+    Initializer(activity, intents, events)
+    ScreenContent(state, intents, onCoinClick)
+}
+
+@Composable
+private fun Initializer(
+    activity: Activity,
+    intents: (Intent) -> Unit,
+    events: SharedFlow<Event>,
+) {
+    LaunchedEffect(Unit) {
+        collectEvents(activity, events)
+    }
+}
+
+private suspend fun collectEvents(
+    activity: Activity,
+    events: SharedFlow<Event>,
+) {
+    events.collectLatest {
+        when (it) {
+            is Event.ShowError ->
+                Toast
+                    .makeText(
+                        activity,
+                        activity.getString(it.messageResId),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScreenContent(
-    items: List<Coin>?,
-    lastListUpdateTimestamp: Long?,
-    isRefreshing: Boolean,
-    isTopGainers: Boolean,
+    state: State,
+    intents: (Intent) -> Unit,
     onCoinClick: (Coin) -> Unit = {},
-    coinListViewModel: CoinListViewModel,
 ) {
+    val items = state.items.observeAsState().value
+    val lastListUpdateTimestamp = state.lastListUpdateTimestamp.observeAsState().value
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -115,15 +123,15 @@ fun ScreenContent(
             )
         },
     ) { contentPadding ->
-        if (!items.isNullOrEmpty() && items.size == LIST_SIZE) {
+        if (!items.isNullOrEmpty() && items.size == state.listSize) {
             LoadedContent(
                 contentPadding,
                 items,
                 lastListUpdateTimestamp,
-                isRefreshing,
-                isTopGainers,
+                state.isRefreshing,
+                state.isTopGainers,
+                intents,
                 onCoinClick,
-                coinListViewModel,
             )
         } else {
             LoadingScreen(contentPadding)
@@ -157,15 +165,15 @@ fun LoadedContent(
     lastListUpdateTimestamp: Long?,
     isRefreshing: Boolean,
     isTopGainers: Boolean,
+    intents: (Intent) -> Unit,
     onCoinClick: (Coin) -> Unit = {},
-    coinListViewModel: CoinListViewModel,
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 
     return PullToRefreshBox(
         state = pullRefreshState,
         isRefreshing = isRefreshing,
-        onRefresh = { coinListViewModel.onSwipeToRefresh() },
+        onRefresh = { intents(Intent.OnSwipeToRefresh) },
         modifier =
             Modifier
                 .fillMaxSize()
@@ -176,7 +184,7 @@ fun LoadedContent(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            CoinListScreen(items, lastListUpdateTimestamp, isTopGainers, onCoinClick, coinListViewModel)
+            CoinListScreen(items, lastListUpdateTimestamp, isTopGainers, intents, onCoinClick)
         }
     }
 }
@@ -186,8 +194,8 @@ private fun CoinListScreen(
     items: List<Coin>,
     lastListUpdateTimestamp: Long?,
     isTopGainers: Boolean,
+    intents: (Intent) -> Unit,
     onCoinClick: (Coin) -> Unit = {},
-    coinListViewModel: CoinListViewModel,
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -219,7 +227,7 @@ private fun CoinListScreen(
         Box(
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
-            ToggleAssetsByPerformanceButton(isTopGainers, coinListViewModel)
+            ToggleAssetsByPerformanceButton(isTopGainers, intents)
         }
     }
 }
@@ -227,7 +235,7 @@ private fun CoinListScreen(
 @Composable
 private fun ToggleAssetsByPerformanceButton(
     isTopGainers: Boolean,
-    coinListViewModel: CoinListViewModel,
+    intents: (Intent) -> Unit,
 ) {
     ExtendedFloatingActionButton(
         modifier =
@@ -261,7 +269,7 @@ private fun ToggleAssetsByPerformanceButton(
                 )
             }
         },
-        onClick = { coinListViewModel.toggleCoinListOrder() },
+        onClick = { intents(Intent.ToggleCoinListOrder) },
     )
 }
 
@@ -270,35 +278,38 @@ private fun ToggleAssetsByPerformanceButton(
 private fun LoadedScreenPreview() {
     MaterialTheme {
         ScreenContent(
-            items =
-                listOf(
-                    Coin(
-                        "1",
-                        "Bitcoin",
-                        "BTC",
-                        1000000.3300,
-                        123.45,
-                    ),
-                    Coin(
-                        "2",
-                        "Ethereum",
-                        "ETH",
-                        500000.0000,
-                        67.85,
-                    ),
-                    Coin(
-                        "3",
-                        "BNB",
-                        "BNB",
-                        123.0230,
-                        90.74,
-                    ),
+            state =
+                State(
+                    items =
+                        MutableLiveData(
+                            listOf(
+                                Coin(
+                                    "1",
+                                    "Bitcoin",
+                                    "BTC",
+                                    1000000.3300,
+                                    123.45,
+                                ),
+                                Coin(
+                                    "2",
+                                    "Ethereum",
+                                    "ETH",
+                                    500000.0000,
+                                    67.85,
+                                ),
+                                Coin(
+                                    "3",
+                                    "BNB",
+                                    "BNB",
+                                    123.0230,
+                                    90.74,
+                                ),
+                            ),
+                        ),
+                    lastListUpdateTimestamp = MutableLiveData(1536347807471L),
                 ),
-            lastListUpdateTimestamp = 1536347807471L,
-            isRefreshing = false,
-            isTopGainers = true,
             {},
-            hiltViewModel(),
+            {},
         )
     }
 }
@@ -308,12 +319,16 @@ private fun LoadedScreenPreview() {
 private fun LoadingScreenPreview() {
     MaterialTheme {
         ScreenContent(
-            items = null,
-            lastListUpdateTimestamp = 1536347807471L,
-            isRefreshing = false,
-            isTopGainers = true,
+            state =
+                State(
+                    items =
+                        MutableLiveData(
+                            null,
+                        ),
+                    lastListUpdateTimestamp = MutableLiveData(1536347807471L),
+                ),
             {},
-            hiltViewModel(),
+            {},
         )
     }
 }

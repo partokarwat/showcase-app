@@ -9,13 +9,17 @@ import androidx.lifecycle.viewModelScope
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.repository.CoinListRepository
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Event
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Intent
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.State
+import com.partokarwat.showcase.ui.common.UniDirectionalViewModelContract
 import com.partokarwat.showcase.usecases.FetchAllCoinsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,77 +30,110 @@ class CoinListViewModel
     constructor(
         private val coinListRepository: CoinListRepository,
         private val fetchAllCoinsUseCase: FetchAllCoinsUseCase,
-    ) : ViewModel() {
-        private val _isTopGainers = MutableStateFlow(IS_TOP_GAINERS_INITIAL_VALUE)
-        val isTopGainers: Flow<Boolean> get() = _isTopGainers.filterNotNull()
+    ) : ViewModel(),
+        CoinListViewModelContract {
+        private val _state =
+            MutableStateFlow(
+                State(
+                    items = MutableLiveData(),
+                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
+                ),
+            )
+        override val state = _state.asStateFlow()
 
-        val items: LiveData<List<Coin>> =
-            isTopGainers
-                .flatMapLatest { isTopGainers ->
-                    if (isTopGainers) {
-                        coinListRepository.getTopGainersCoins(LIST_SIZE)
-                    } else {
-                        coinListRepository.getTopLoserCoins(LIST_SIZE)
-                    }
-                }.asLiveData()
+        private val _event = MutableSharedFlow<Event>()
+        override val event = _event.asSharedFlow()
 
-        val lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData()
-
-        private val _isError = MutableStateFlow(IS_ERROR_INITIAL_VALUE)
-        val isError: Flow<Pair<Boolean, Int>> get() = _isError.filterNotNull()
-
-        private val _isRefreshing = MutableLiveData(IS_REFRESHING_INITIAL_VALUE)
-        val isRefreshing: LiveData<Boolean>
-            get() = _isRefreshing
+        override fun intent(intent: Intent) {
+            when (intent) {
+                Intent.OnSwipeToRefresh -> onSwipeToRefresh()
+                Intent.ToggleCoinListOrder -> toggleCoinListOrder()
+            }
+        }
 
         init {
             viewModelScope.launch {
                 withContext(Dispatchers.Default) {
+                    _state.value =
+                        _state.value.copy(
+                            items =
+                                if (_state.value.isTopGainers) {
+                                    coinListRepository.getTopGainersCoins(_state.value.listSize)
+                                } else {
+                                    coinListRepository.getTopLoserCoins(_state.value.listSize)
+                                }.asLiveData(),
+                        )
                     try {
                         fetchAllCoinsUseCase()
                     } catch (e: Exception) {
-                        _isError.emit(Pair(true, R.string.loading_data_from_network_error_text))
+                        _event.emit(Event.ShowError(R.string.loading_data_from_network_error_text))
                         Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                     }
                 }
             }
         }
 
-        fun onSwipeToRefresh() {
+        private fun onSwipeToRefresh() {
             viewModelScope.launch {
                 try {
-                    _isRefreshing.value = true
+                    _state.value =
+                        _state.value.copy(
+                            isRefreshing = true,
+                        )
                     withContext(Dispatchers.Default) {
                         fetchAllCoinsUseCase()
                     }
-                    _isRefreshing.value = false
                 } catch (e: Exception) {
-                    _isError.value = Pair(true, R.string.pull_to_refresh_error_text)
-                    _isRefreshing.value = false
+                    _event.emit(Event.ShowError(R.string.pull_to_refresh_error_text))
                     Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                 }
+                _state.value =
+                    _state.value.copy(
+                        isRefreshing = false,
+                    )
             }
         }
 
-        fun toggleCoinListOrder() {
+        private fun toggleCoinListOrder() {
             viewModelScope.launch {
                 try {
-                    _isTopGainers.emit(!_isTopGainers.value)
+                    val isTopGainers = !_state.value.isTopGainers
+                    _state.value =
+                        _state.value.copy(
+                            isTopGainers = isTopGainers,
+                            items =
+                                if (isTopGainers) {
+                                    coinListRepository.getTopGainersCoins(_state.value.listSize)
+                                } else {
+                                    coinListRepository.getTopLoserCoins(_state.value.listSize)
+                                }.asLiveData(),
+                        )
                 } catch (e: Exception) {
-                    _isError.value = Pair(true, R.string.technical_error_text)
+                    _event.emit(Event.ShowError(R.string.technical_error_text))
                     Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                 }
             }
         }
-
-        fun resetIsError() {
-            _isError.value = IS_ERROR_INITIAL_VALUE
-        }
-
-        companion object {
-            val IS_ERROR_INITIAL_VALUE = Pair(false, 0)
-            const val IS_REFRESHING_INITIAL_VALUE = false
-            const val IS_TOP_GAINERS_INITIAL_VALUE = true
-            const val LIST_SIZE = 100
-        }
     }
+
+interface CoinListViewModelContract : UniDirectionalViewModelContract<State, Intent, Event> {
+    data class State(
+        val listSize: Int = 100,
+        val isTopGainers: Boolean = true,
+        val items: LiveData<List<Coin>>,
+        val lastListUpdateTimestamp: LiveData<Long>,
+        val isRefreshing: Boolean = false,
+    )
+
+    sealed interface Event {
+        data class ShowError(
+            val messageResId: Int,
+        ) : Event
+    }
+
+    sealed interface Intent {
+        data object OnSwipeToRefresh : Intent
+
+        data object ToggleCoinListOrder : Intent
+    }
+}
