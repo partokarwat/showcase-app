@@ -2,7 +2,6 @@ package com.partokarwat.showcase.ui.coinslist
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -33,12 +32,7 @@ class CoinListViewModel
     ) : ViewModel(),
         CoinListViewModelContract {
         private val _state =
-            MutableStateFlow(
-                State(
-                    items = MutableLiveData(),
-                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
-                ),
-            )
+            MutableStateFlow<State>(State.Loading)
         override val state = _state.asStateFlow()
 
         private val _event = MutableSharedFlow<Event>()
@@ -46,28 +40,43 @@ class CoinListViewModel
 
         override fun intent(intent: Intent) {
             when (intent) {
+                Intent.ScreenCreated -> moveToLoadedState()
                 Intent.OnSwipeToRefresh -> onSwipeToRefresh()
                 Intent.ToggleCoinListOrder -> toggleCoinListOrder()
             }
         }
 
-        init {
+        private fun moveToLoadedState() {
             viewModelScope.launch {
                 withContext(Dispatchers.Default) {
-                    _state.value =
-                        _state.value.copy(
-                            items =
-                                if (_state.value.isTopGainers) {
-                                    coinListRepository.getTopGainersCoins(_state.value.listSize)
-                                } else {
-                                    coinListRepository.getTopLoserCoins(_state.value.listSize)
-                                }.asLiveData(),
-                        )
-                    try {
-                        fetchAllCoinsUseCase()
-                    } catch (e: Exception) {
-                        _event.emit(Event.ShowError(R.string.loading_data_from_network_error_text))
-                        Log.d(CoinListViewModel::class.java.simpleName, e.toString())
+                    when (_state.value) {
+                        State.Loading -> {
+                            _state.value =
+                                State.Loaded(
+                                    items =
+                                        coinListRepository.getTopGainersCoins(LIST_SIZE).asLiveData(),
+                                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
+                                )
+
+                            try {
+                                fetchAllCoinsUseCase()
+                            } catch (e: Exception) {
+                                _event.emit(Event.ShowError(R.string.loading_data_from_network_error_text))
+                                Log.d(CoinListViewModel::class.java.simpleName, e.toString())
+                            }
+                        }
+
+                        is State.Loaded ->
+                            _state.value =
+                                (_state.value as State.Loaded).copy(
+                                    items =
+                                        if ((_state.value as State.Loaded).isTopGainers) {
+                                            coinListRepository.getTopGainersCoins(LIST_SIZE)
+                                        } else {
+                                            coinListRepository.getTopLoserCoins(LIST_SIZE)
+                                        }.asLiveData(),
+                                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
+                                )
                     }
                 }
             }
@@ -77,7 +86,7 @@ class CoinListViewModel
             viewModelScope.launch {
                 try {
                     _state.value =
-                        _state.value.copy(
+                        (_state.value as State.Loaded).copy(
                             isRefreshing = true,
                         )
                     withContext(Dispatchers.Default) {
@@ -88,7 +97,7 @@ class CoinListViewModel
                     Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                 }
                 _state.value =
-                    _state.value.copy(
+                    (_state.value as State.Loaded).copy(
                         isRefreshing = false,
                     )
             }
@@ -97,15 +106,15 @@ class CoinListViewModel
         private fun toggleCoinListOrder() {
             viewModelScope.launch {
                 try {
-                    val isTopGainers = !_state.value.isTopGainers
+                    val isTopGainers = !(_state.value as State.Loaded).isTopGainers
                     _state.value =
-                        _state.value.copy(
+                        (_state.value as State.Loaded).copy(
                             isTopGainers = isTopGainers,
                             items =
                                 if (isTopGainers) {
-                                    coinListRepository.getTopGainersCoins(_state.value.listSize)
+                                    coinListRepository.getTopGainersCoins(LIST_SIZE)
                                 } else {
-                                    coinListRepository.getTopLoserCoins(_state.value.listSize)
+                                    coinListRepository.getTopLoserCoins(LIST_SIZE)
                                 }.asLiveData(),
                         )
                 } catch (e: Exception) {
@@ -114,16 +123,23 @@ class CoinListViewModel
                 }
             }
         }
+
+        companion object {
+            const val LIST_SIZE = 100
+        }
     }
 
 interface CoinListViewModelContract : UniDirectionalViewModelContract<State, Intent, Event> {
-    data class State(
-        val listSize: Int = 100,
-        val isTopGainers: Boolean = true,
-        val items: LiveData<List<Coin>>,
-        val lastListUpdateTimestamp: LiveData<Long>,
-        val isRefreshing: Boolean = false,
-    )
+    sealed class State {
+        data object Loading : State()
+
+        data class Loaded(
+            val isTopGainers: Boolean = true,
+            val items: LiveData<List<Coin>>,
+            val lastListUpdateTimestamp: LiveData<Long>,
+            val isRefreshing: Boolean = false,
+        ) : State()
+    }
 
     sealed interface Event {
         data class ShowError(
@@ -132,6 +148,8 @@ interface CoinListViewModelContract : UniDirectionalViewModelContract<State, Int
     }
 
     sealed interface Intent {
+        data object ScreenCreated : Intent
+
         data object OnSwipeToRefresh : Intent
 
         data object ToggleCoinListOrder : Intent

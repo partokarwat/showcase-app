@@ -82,6 +82,9 @@ private fun Initializer(
     LaunchedEffect(Unit) {
         collectEvents(activity, events)
     }
+    LaunchedEffect(Unit) {
+        intents(Intent.ScreenCreated)
+    }
 }
 
 private suspend fun collectEvents(
@@ -108,9 +111,6 @@ fun ScreenContent(
     intents: (Intent) -> Unit,
     onCoinClick: (Coin) -> Unit = {},
 ) {
-    val items = state.items.observeAsState().value
-    val lastListUpdateTimestamp = state.lastListUpdateTimestamp.observeAsState().value
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -123,18 +123,25 @@ fun ScreenContent(
             )
         },
     ) { contentPadding ->
-        if (!items.isNullOrEmpty() && items.size == state.listSize) {
-            LoadedContent(
-                contentPadding,
-                items,
-                lastListUpdateTimestamp,
-                state.isRefreshing,
-                state.isTopGainers,
-                intents,
-                onCoinClick,
-            )
-        } else {
-            LoadingScreen(contentPadding)
+        when (state) {
+            State.Loading -> LoadingScreen(contentPadding)
+            is State.Loaded -> {
+                val items =
+                    state.items
+                        .observeAsState()
+                        .value
+                        .orEmpty()
+                val lastListUpdateTimestamp = state.lastListUpdateTimestamp.observeAsState().value
+                LoadedContent(
+                    contentPadding,
+                    items,
+                    lastListUpdateTimestamp,
+                    state.isRefreshing,
+                    state.isTopGainers,
+                    intents,
+                    onCoinClick,
+                )
+            }
         }
     }
 }
@@ -279,7 +286,7 @@ private fun LoadedScreenPreview() {
     MaterialTheme {
         ScreenContent(
             state =
-                State(
+                State.Loaded(
                     items =
                         MutableLiveData(
                             listOf(
@@ -320,13 +327,7 @@ private fun LoadingScreenPreview() {
     MaterialTheme {
         ScreenContent(
             state =
-                State(
-                    items =
-                        MutableLiveData(
-                            null,
-                        ),
-                    lastListUpdateTimestamp = MutableLiveData(1536347807471L),
-                ),
+                State.Loading,
             {},
             {},
         )

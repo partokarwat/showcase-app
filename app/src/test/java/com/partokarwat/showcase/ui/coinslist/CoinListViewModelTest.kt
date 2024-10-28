@@ -5,6 +5,7 @@ import androidx.test.filters.SmallTest
 import app.cash.turbine.test
 import com.partokarwat.showcase.data.repository.CoinListRepository
 import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.Intent
+import com.partokarwat.showcase.ui.coinslist.CoinListViewModelContract.State
 import com.partokarwat.showcase.usecases.FetchAllCoinsUseCase
 import com.partokarwat.showcase.utilities.MainCoroutineRule
 import io.mockk.mockk
@@ -37,16 +38,35 @@ class CoinListViewModelTest {
     }
 
     @Test
+    fun `given viewModel when screen is created then state is updated accordingly`() =
+        runTest {
+            viewModel.state.test {
+                // given
+                val initialValue = awaitItem()
+
+                // when
+                viewModel.intent(Intent.ScreenCreated)
+
+                // then
+                val updatedValue = awaitItem()
+                assertTrue(initialValue is State.Loading)
+                assertTrue(updatedValue is State.Loaded)
+            }
+        }
+
+    @Test
     fun `given viewModel when swipe to refresh is started then isRefreshing is updated accordingly`() =
         runTest {
             viewModel.state.test {
                 // given
-                val initialValue = awaitItem().isRefreshing
+                skipItems(1)
+                viewModel.intent(Intent.ScreenCreated)
+                val initialValue = (awaitItem() as State.Loaded).isRefreshing
 
                 // when
                 viewModel.intent(Intent.OnSwipeToRefresh)
-                val refreshingValue = awaitItem().isRefreshing
-                val finishedValue = awaitItem().isRefreshing
+                val refreshingValue = (awaitItem() as State.Loaded).isRefreshing
+                val finishedValue = (awaitItem() as State.Loaded).isRefreshing
 
                 // then
                 assertEquals(refreshingValue, true)
@@ -59,11 +79,13 @@ class CoinListViewModelTest {
         runTest {
             viewModel.state.test {
                 // given
-                val initialValue = awaitItem().isTopGainers
+                skipItems(1)
+                viewModel.intent(Intent.ScreenCreated)
+                val initialValue = (awaitItem() as State.Loaded).isTopGainers
 
                 // when
                 viewModel.intent(Intent.ToggleCoinListOrder)
-                val updatedValue = awaitItem().isTopGainers
+                val updatedValue = (awaitItem() as State.Loaded).isTopGainers
 
                 // then
                 assertEquals(initialValue, true)
