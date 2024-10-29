@@ -51,19 +51,19 @@ class CoinListViewModel
                 withContext(Dispatchers.Default) {
                     when (_state.value) {
                         State.Loading -> {
-                            _state.value =
-                                State.Loaded(
-                                    items =
-                                        coinListRepository.getTopGainersCoins(LIST_SIZE).asLiveData(),
-                                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
-                                )
-
                             try {
                                 fetchAllCoinsUseCase()
                             } catch (e: Exception) {
                                 _event.emit(Event.ShowError(R.string.loading_data_from_network_error_text))
                                 Log.d(CoinListViewModel::class.java.simpleName, e.toString())
                             }
+
+                            _state.value =
+                                State.Loaded(
+                                    items =
+                                    coinListRepository.getTopGainersCoins(LIST_SIZE).asLiveData(),
+                                    lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
+                                )
                         }
 
                         is State.Loaded ->
