@@ -39,7 +39,7 @@ class FetchAllCoinsUseCaseTest {
     }
 
     @Test
-    fun `invoke() should fetch coins, update timestamp, and insert and update coins in database`() = runTest {
+    fun `invoke() should fetch coins, update timestamp, and insert or update coins in database`() = runTest {
         // Given
         val cryptoApiResponse = AssetResponse(listOf(testAssets[0], testAssets[1]), timestamp)
         val exchangeRate = exchangeRateEur
