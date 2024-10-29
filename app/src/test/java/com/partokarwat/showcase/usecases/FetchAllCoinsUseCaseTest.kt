@@ -78,7 +78,6 @@ class FetchAllCoinsUseCaseTest {
         coEvery { coinListRepository.getAssetsFromCoinCapApi() } throws exception
         coEvery { conversionRateRepository.getExchangeUsdToEuroRate() } returns Result.Error(exception)
 
-
         // When & Then
         assertThrows<Exception> { runBlocking { fetchAllCoinsUseCase() } }
         coVerify(exactly = 0) { coinListRepository.insertCoin(any()) }
