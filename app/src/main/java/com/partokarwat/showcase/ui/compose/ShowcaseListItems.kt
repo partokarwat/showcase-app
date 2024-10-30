@@ -158,7 +158,7 @@ private fun MarketValueListItemPreview() {
                 "62267.6968255180129234",
                 "9.99636699417193",
                 "BTC",
-                "USDC"
+                "USDC",
             ),
         )
     }

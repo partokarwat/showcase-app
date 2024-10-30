@@ -61,7 +61,7 @@ class CoinListViewModel
                             _state.value =
                                 State.Loaded(
                                     items =
-                                    coinListRepository.getTopGainersCoins(LIST_SIZE).asLiveData(),
+                                        coinListRepository.getTopGainersCoins(LIST_SIZE).asLiveData(),
                                     lastListUpdateTimestamp = coinListRepository.getLastDataUpdateTimestamp().asLiveData(),
                                 )
                         }
