@@ -1,4 +1,4 @@
-name: ktlint
+name: unit tests
 
 on:
   push:
@@ -19,5 +19,5 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
+      - name: Run unit tests
+        run: ./gradlew test
