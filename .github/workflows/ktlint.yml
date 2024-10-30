@@ -1,0 +1,23 @@
+name: ktlint
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck

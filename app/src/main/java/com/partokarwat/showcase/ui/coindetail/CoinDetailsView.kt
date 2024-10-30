@@ -241,7 +241,7 @@ private fun CoinHistoryGraph(coinHistory: List<HistoryValue>) {
 @Composable
 private fun HistoryGraphTimeRangeLabel() {
     SuggestionChip(
-        onClick = { }, // do nothing
+        onClick = { },
         enabled = false,
         label = {
             ShowcaseText(
