@@ -24,7 +24,7 @@ object DatabaseModule {
     @Provides
     fun provideAppDatabase(
         @ApplicationContext context: Context,
-    ): AppDatabase = AppDatabase.getInstance(context)
+    ): AppDatabase = AppDatabase.buildDatabase(context)
 
     @Provides
     fun provideCoinDao(appDatabase: AppDatabase): CoinDao = appDatabase.coinDao()

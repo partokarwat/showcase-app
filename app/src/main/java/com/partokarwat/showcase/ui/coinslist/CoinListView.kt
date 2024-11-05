@@ -79,10 +79,10 @@ private fun Initializer(
     intents: (Intent) -> Unit,
     events: SharedFlow<Event>,
 ) {
-    LaunchedEffect(Unit) {
+    LaunchedEffect(activity, events) {
         collectEvents(activity, events)
     }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(intents) {
         intents(Intent.ScreenCreated)
     }
 }

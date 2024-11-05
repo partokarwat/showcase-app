@@ -16,14 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun coinDao(): CoinDao
 
     companion object {
-        @Volatile private var instance: AppDatabase? = null
-
-        fun getInstance(context: Context): AppDatabase =
-            instance ?: synchronized(this) {
-                instance ?: buildDatabase(context).also { instance = it }
-            }
-
-        private fun buildDatabase(context: Context): AppDatabase =
+        fun buildDatabase(context: Context): AppDatabase =
             Room
                 .databaseBuilder(
                     context.applicationContext,

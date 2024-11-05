@@ -32,9 +32,9 @@ fun CoinListItem(
 ) {
     Box(
         modifier
+            .clickable { onCoinClick(item) }
             .padding(horizontal = Dimensions.spacingNormal)
-            .padding(top = Dimensions.spacingNormal)
-            .clickable { onCoinClick(item) },
+            .padding(top = Dimensions.spacingNormal),
     ) {
         Column {
             Row {
