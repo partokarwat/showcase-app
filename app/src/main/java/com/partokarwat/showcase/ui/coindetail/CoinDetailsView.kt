@@ -27,7 +27,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,22 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.partokarwat.showcase.R
 import com.partokarwat.showcase.data.db.Coin
 import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.util.Result
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.State
-import com.partokarwat.showcase.ui.common.use
+import com.partokarwat.showcase.ui.coindetail.CoinDetailViewModel.UiState
 import com.partokarwat.showcase.ui.compose.CoinListItem
 import com.partokarwat.showcase.ui.compose.Dimensions
 import com.partokarwat.showcase.ui.compose.MarketValueListItem
 import com.partokarwat.showcase.ui.compose.ShowcaseText
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import java.math.BigDecimal
 
 @Composable
@@ -62,46 +58,24 @@ fun CoinDetailsScreen(
     onBackClick: () -> Unit,
     coinDetailsViewModel: CoinDetailViewModel = hiltViewModel(),
 ) {
-    val (state, intents, events) = use(viewModel = coinDetailsViewModel)
-
-    Initializer(activity, intents, events)
+    val state by coinDetailsViewModel.uiState.collectAsStateWithLifecycle()
     ScreenContent(state, onBackClick)
-}
-
-@Composable
-private fun Initializer(
-    activity: Activity,
-    intents: (Intent) -> Unit,
-    events: SharedFlow<Event>,
-) {
-    LaunchedEffect(activity, events) {
-        collectEvents(activity, events)
-    }
-    LaunchedEffect(intents) {
-        intents(Intent.ScreenCreated)
-    }
-}
-
-private suspend fun collectEvents(
-    activity: Activity,
-    events: SharedFlow<Event>,
-) {
-    events.collectLatest {
-        when (it) {
-            is Event.ShowError ->
-                Toast
-                    .makeText(
-                        activity,
-                        activity.getString(it.messageResId),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+    if (state.errorMessageResId != null) {
+        state.errorMessageResId?.let {
+            Toast
+                .makeText(
+                    activity,
+                    activity.getString(it),
+                    Toast.LENGTH_SHORT,
+                ).show()
         }
+        coinDetailsViewModel.resetErrorMessageResId()
     }
 }
 
 @Composable
 fun ScreenContent(
-    state: State,
+    state: UiState,
     onBackClick: () -> Unit,
 ) {
     Scaffold(
@@ -257,7 +231,7 @@ private fun HistoryGraphTimeRangeLabel() {
 @Composable
 private fun CoinDetailsScreenPreview() {
     ScreenContent(
-        State(
+        UiState(
             Coin("bitcoin", "Bitcoin", "BTC", 62157.5903, -2.23),
             Result.Success(
                 arrayListOf(

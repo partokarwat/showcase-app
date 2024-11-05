@@ -9,18 +9,13 @@ import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.util.Result
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.State
-import com.partokarwat.showcase.ui.common.UniDirectionalViewModelContract
 import com.partokarwat.showcase.ui.common.getErrorStringRes
 import com.partokarwat.showcase.usecases.GetCoinHistoryUseCase
 import com.partokarwat.showcase.usecases.GetCoinMarketVolumesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -37,33 +32,22 @@ class CoinDetailViewModel
         private val coinDetailsRepository: CoinDetailsRepository,
         private val getCoinHistoryUseCase: GetCoinHistoryUseCase,
         private val getCoinMarketVolumesUseCase: GetCoinMarketVolumesUseCase,
-    ) : ViewModel(),
-        CoinDetailsViewModelContract {
+    ) : ViewModel() {
         private val coinId: String = savedStateHandle.get<String>(COIN_ID_SAVED_STATE_KEY).orEmpty()
 
-        private val _state = MutableStateFlow(State())
-        override val state = _state.asStateFlow()
-
-        private val _event = MutableSharedFlow<Event>()
-        override val event = _event.asSharedFlow()
-
-        override fun intent(intent: Intent) {
-            when (intent) {
-                is Intent.ScreenCreated -> loadCoinDetailsFromApi()
-            }
-        }
+        private val _uiState = MutableStateFlow(UiState())
+        val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
         init {
-            viewModelScope.launch {
-                _state.value = _state.value.copy(history = Result.Loading, markets = Result.Loading)
-                val coin = coinDetailsRepository.getCoinById(coinId).first()
-                _state.value = _state.value.copy(coin = coin)
-            }
+            loadCoinDetails()
         }
 
-        private fun loadCoinDetailsFromApi() {
+        private fun loadCoinDetails() {
             viewModelScope.launch {
-                withContext(Dispatchers.IO) {
+                withContext(Dispatchers.Default) {
+                    _uiState.value = UiState(history = Result.Loading, markets = Result.Loading)
+                    val coin = coinDetailsRepository.getCoinById(coinId).first()
+                    _uiState.value = _uiState.value.copy(coin = coin)
                     val coinHistoryResult =
                         try {
                             getCoinHistoryUseCase(coinId)
@@ -81,8 +65,8 @@ class CoinDetailViewModel
                     } else if (coinHistoryResult is Result.Error) {
                         showError(coinHistoryResult.getErrorOrNull())
                     }
-                    _state.value =
-                        _state.value.copy(
+                    _uiState.value =
+                        _uiState.value.copy(
                             history = coinHistoryResult,
                             markets = coinMarketsResult,
                         )
@@ -90,26 +74,19 @@ class CoinDetailViewModel
             }
         }
 
-        private suspend fun showError(exception: Throwable?) {
+        private fun showError(exception: Throwable?) {
             Log.e(CoinDetailViewModel::class.java.simpleName, "Error: ", exception)
-            _event.emit(Event.ShowError(getErrorStringRes(exception)))
+            _uiState.value = _uiState.value.copy(errorMessageResId = getErrorStringRes(exception))
         }
-    }
 
-interface CoinDetailsViewModelContract : UniDirectionalViewModelContract<State, Intent, Event> {
-    data class State(
-        val coin: Coin? = null,
-        val history: Result<List<HistoryValue>> = Result.Loading,
-        val markets: Result<List<MarketValue>> = Result.Loading,
-    )
+        fun resetErrorMessageResId() {
+            _uiState.value = _uiState.value.copy(errorMessageResId = null)
+        }
 
-    sealed interface Event {
-        data class ShowError(
-            val messageResId: Int,
-        ) : Event
+        data class UiState(
+            val coin: Coin? = null,
+            val history: Result<List<HistoryValue>> = Result.Loading,
+            val markets: Result<List<MarketValue>> = Result.Loading,
+            val errorMessageResId: Int? = null,
+        )
     }
-
-    sealed interface Intent {
-        data object ScreenCreated : Intent
-    }
-}
