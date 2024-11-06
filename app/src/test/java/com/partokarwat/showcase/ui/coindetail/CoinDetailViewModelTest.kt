@@ -7,8 +7,7 @@ import com.partokarwat.showcase.data.remote.HistoryValue
 import com.partokarwat.showcase.data.remote.MarketValue
 import com.partokarwat.showcase.data.repository.CoinDetailsRepository
 import com.partokarwat.showcase.data.util.Result
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Event
-import com.partokarwat.showcase.ui.coindetail.CoinDetailsViewModelContract.Intent
+import com.partokarwat.showcase.ui.coindetail.CoinDetailViewModel.UiState
 import com.partokarwat.showcase.usecases.GetCoinHistoryUseCase
 import com.partokarwat.showcase.usecases.GetCoinMarketVolumesUseCase
 import com.partokarwat.showcase.utilities.MainCoroutineRule
@@ -34,6 +33,10 @@ class CoinDetailViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainCoroutineRule()
 
+    private val savedStateHandle: SavedStateHandle =
+        SavedStateHandle().apply {
+            set(COIN_ID_SAVED_STATE_KEY, testCoin.id)
+        }
     private val coinDetailsRepository = mockk<CoinDetailsRepository>(relaxed = true)
     private val getCoinHistoryUseCase = mockk<GetCoinHistoryUseCase>(relaxed = true)
     private val getCoinMarketVolumesUseCase = mockk<GetCoinMarketVolumesUseCase>(relaxed = true)
@@ -41,10 +44,6 @@ class CoinDetailViewModelTest {
 
     @Before
     fun setUp() {
-        val savedStateHandle: SavedStateHandle =
-            SavedStateHandle().apply {
-                set(COIN_ID_SAVED_STATE_KEY, testCoin.id)
-            }
         coEvery {
             getCoinHistoryUseCase(testCoin.id)
         } returns Result.Success(testCoinHistoryValues)
@@ -66,18 +65,25 @@ class CoinDetailViewModelTest {
     @Test
     fun `given viewModel when initialised then values are loaded correctly`() =
         runTest {
-            viewModel.state.test {
-                // given
-                val expectedState =
-                    CoinDetailsViewModelContract.State(
-                        coin = testCoin,
-                        history = Result.Success(testCoinHistoryValues),
-                        markets = Result.Success(testCoinMarketValues),
-                    )
+            // given
+            val expectedState =
+                UiState(
+                    coin = testCoin,
+                    history = Result.Success(testCoinHistoryValues),
+                    markets = Result.Success(testCoinMarketValues),
+                )
 
-                // when
-                skipItems(1)
-                viewModel.intent(Intent.ScreenCreated)
+            // when
+            viewModel =
+                CoinDetailViewModel(
+                    savedStateHandle,
+                    coinDetailsRepository,
+                    getCoinHistoryUseCase,
+                    getCoinMarketVolumesUseCase,
+                )
+
+            viewModel.uiState.test {
+                skipItems(2)
 
                 // then
                 val actualState = awaitItem()
@@ -92,18 +98,21 @@ class CoinDetailViewModelTest {
         expectedMarketResult: Result<List<MarketValue>>,
     ) {
         runTest {
-            viewModel.event.test {
-                coEvery { getCoinHistoryUseCase(testCoin.id) } returns expectedHistoryResult
-                coEvery { getCoinMarketVolumesUseCase(testCoin.id) } returns expectedMarketResult
+            coEvery { getCoinHistoryUseCase(testCoin.id) } returns expectedHistoryResult
+            coEvery { getCoinMarketVolumesUseCase(testCoin.id) } returns expectedMarketResult
 
-                viewModel.intent(Intent.ScreenCreated)
+            viewModel =
+                CoinDetailViewModel(
+                    savedStateHandle,
+                    coinDetailsRepository,
+                    getCoinHistoryUseCase,
+                    getCoinMarketVolumesUseCase,
+                )
 
-                val event = this.awaitItem()
-                assertTrue(event is Event.ShowError)
-                expectNoEvents()
-
-                assertEquals(viewModel.state.value.history, expectedHistoryResult)
-                assertEquals(viewModel.state.value.markets, expectedMarketResult)
+            viewModel.uiState.test {
+                assertNotNull(viewModel.uiState.value.errorMessageResId)
+                assertEquals(viewModel.uiState.value.history, expectedHistoryResult)
+                assertEquals(viewModel.uiState.value.markets, expectedMarketResult)
             }
         }
     }
